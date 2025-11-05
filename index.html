@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>jsPsych Test</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <link rel="stylesheet" href="lib/jspsych/jspsych.css">
+  <script src="lib/jspsych/jspsych.js"></script>
+</head>
+<body>
+<script>
+// --- diagnostic ---
+window.onerror = (msg,src,line,col,err)=>{
+  document.body.innerHTML = "<pre style='color:red'>ERROR:\n"+(err?.stack||msg)+"</pre>";
+};
+
+// --- check that jsPsych loaded ---
+if (typeof initJsPsych !== 'function') {
+  document.body.innerHTML = "<p style='color:red'>initJsPsych is undefined — jspsych.js not found or broken.</p>";
+  throw new Error('jsPsych not loaded');
+}
+
+// --- minimal study ---
+const jsPsych = initJsPsych({
+  on_finish: function() {
+    const data = jsPsych.data.get().csv();
+    document.body.innerHTML = "<pre>"+data+"</pre>";
+  }
+});
+
+// one single button-response trial
+const timeline = [
+  {
+    type: jsPsychHtmlButtonResponse,
+    stimulus: "<h2>Click the button as quickly as you can</h2>",
+    choices: ["Click Me"]
+  }
+];
+
+jsPsych.run(timeline);
+</script>
+</body>
+</html>
