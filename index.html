@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <title>Survey Test – Diagnostic 2</title>
+  <title>Survey Test – Diagnostic 3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <!-- jsPsych (from CDN) -->
@@ -11,43 +11,171 @@
   <script src="lib/jspsych/plugin-fullscreen.js"></script>
   <script src="lib/jspsych/plugin-preload.js"></script>
   <script src="lib/jspsych/plugin-html-button-response.js"></script>
+  <style>
+    body { background:#fafafa; margin:0; }
+    .jspsych-content { max-width: 900px; }
+    img.stim { max-width:80vw; max-height:70vh; border:1px solid #ddd; }
+    .muted { color:#666; }
+    .warn { background:#fff7d6; border:1px solid #f0d986; padding:0.75rem 1rem; border-radius:8px; }
+    details summary { cursor:pointer; }
+  </style>
 </head>
-<body style="background:#fafafa;font-family:sans-serif;margin:2rem">
+<body>
 <script>
-/* === DIAGNOSTIC: check if jsPsych actually loaded === */
-if (typeof initJsPsych !== "function") {
-  document.body.innerHTML = `
-    <div style="color:red">
-      <h2>❌ jsPsych did NOT load</h2>
-      <p>Check the <b>Network</b> tab (F12 → Network) for 404 or blocked files.<br>
-      The browser must reach <code>https://unpkg.com/jspsych@7.3.3/dist/jspsych.js</code>.</p>
-    </div>`;
-  throw new Error("jsPsych not loaded");
+/* ========================= CONFIG ========================= */
+const WEBHOOK = "https://script.google.com/macros/s/AKfycbxl1eYqL2InnaU_iUWJINyGgHt_LZjp6-PcqROv_jWSBa2Ml4tEmwS3oGWt693-Tss_hQ/exec";
+
+// Answer buttons shown for every question (adjust labels as needed)
+const ANSWER_CHOICES = ["Option A","Option B","Option C","Option D"];
+
+// Build 10 banks of 8 image paths each.
+// You currently have only q1_*; leave q2..q10 as-is and add files later.
+function bank(n){
+  return [
+    `img/q${n}_a.jpg`,`img/q${n}_b.jpg`,`img/q${n}_c.jpg`,`img/q${n}_d.jpg`,
+    `img/q${n}_e.jpg`,`img/q${n}_f.jpg`,`img/q${n}_g.jpg`,`img/q${n}_h.jpg`
+  ];
+}
+const questionBanks = [bank(1),bank(2),bank(3),bank(4),bank(5),bank(6),bank(7),bank(8),bank(9),bank(10)];
+
+// Participant id from URL (?pid=ABC123) or random short id
+const PID = new URLSearchParams(location.search).get('pid') || (crypto.randomUUID?.() || Math.random().toString(36)).slice(0,8);
+
+/* ========================= HELPERS ========================= */
+const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+
+// POST to Google Sheets with CORS first, then no-cors fallback
+async function postRows(rows){
+  // First try normal JSON POST (lets us see success/failure)
+  try {
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(rows)
+    });
+    if (res.ok) return {ok:true, mode:'cors', status:res.status, text:await res.text()};
+  } catch (_) {}
+  // Fallback: no-cors (opaque response, but Sheets still receives the data)
+  try {
+    await fetch(WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(rows) // no headers, to avoid preflight
+    });
+    return {ok:true, mode:'no-cors'};
+  } catch (err) {
+    return {ok:false, error:String(err)};
+  }
 }
 
-/* === If we’re here, jsPsych is ready === */
+/* ========================= STUDY ========================= */
 const jsPsych = initJsPsych({
-  on_finish: () => {
-    const csv = jsPsych.data.get().csv();
+  on_finish: async () => {
+    // Extract only our question trials
+    const trials = jsPsych.data.get().filter({trial_type:'html-button-response'}).values();
+    const rows = trials.map((t,i) => ({
+      participant_id: PID,
+      trial: i+1,
+      question_id: t.question_id || `Q${i+1}`,
+      image: t.image || '',
+      response: t.response,
+      rt: Math.round(t.rt),
+      // Optional client metadata (handy if you add columns on the Sheet side)
+      // ua: navigator.userAgent, w: window.innerWidth, h: window.innerHeight
+    }));
+
+    const result = await postRows(rows);
+
+    // Always give a local CSV backup
+    jsPsych.data.get().localSave('csv', `responses_${PID}.csv`);
+
+    // Show status
     document.body.innerHTML =
-      "<h2>✅ jsPsych ran successfully!</h2><pre>" +
-      csv.replace(/,/g, "\t") + "</pre>";
+      result.ok
+        ? `<div style="padding:1rem"><p>✅ Data sent to Google Sheet (${result.mode}).</p>${
+            result.status ? `<p>Status: ${result.status}</p>` : ''
+          }<p class="muted">A CSV was also downloaded locally as backup.</p></div>`
+        : `<div style="padding:1rem"><p>⚠️ Upload failed — CSV downloaded as backup.</p><pre>${result.error||''}</pre></div>`;
   }
 });
 
-const timeline = [
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: "<h2>Hello! jsPsych is working.</h2><p>Click to continue.</p>",
-    choices: ["OK"]
-  },
-  {
-    type: jsPsychHtmlButtonResponse,
-    stimulus: "<p>That’s it — this is a minimal sanity check.</p>",
-    choices: ["Finish"]
-  }
-];
+const timeline = [];
 
+// 0) Fullscreen (optional but recommended)
+timeline.push({
+  type: jsPsychFullscreen,
+  message: `<p>We’ll go fullscreen for best timing.</p>`,
+  button_label: "Start",
+  fullscreen_mode: true
+});
+
+// 1) Quick plugin sanity trial (pure inline SVG)
+timeline.push({
+  type: jsPsychHtmlButtonResponse,
+  stimulus: `<div style="text-align:center">
+    <svg xmlns="http://www.w3.org/2000/svg" width="700" height="200">
+      <rect width="100%" height="100%" fill="#e5e7eb"/>
+      <text x="50%" y="50%" font-size="22" text-anchor="middle" dominant-baseline="middle">
+        Welcome — click to continue
+      </text>
+    </svg>
+    <p class="muted">Participant: <b>${PID}</b></p>
+  </div>`,
+  choices: ["Begin"]
+});
+
+// 2) Preload all candidate images; show progress; continue after errors
+const failed = [];
+timeline.push({
+  type: jsPsychPreload,
+  images: questionBanks.flat(),
+  show_progress_bar: true,
+  message: 'Preloading images…',
+  continue_after_error: true,
+  error_message: '',
+  on_error: file => failed.push(file)
+});
+
+// 3) Warn if any images failed (still continue)
+timeline.push({
+  type: jsPsychHtmlButtonResponse,
+  stimulus: () => {
+    if (!failed.length) {
+      return `<p>All stimuli preloaded successfully.</p>`;
+    }
+    const list = failed.map(f => `<li>${f}</li>`).join('');
+    return `<div class="warn">
+      <p><b>Note:</b> ${failed.length} file(s) were missing. We’ll continue anyway.</p>
+      <details><summary>Show missing file paths</summary><ul>${list}</ul></details>
+    </div>`;
+  },
+  choices: ["Start questions"]
+});
+
+// 4) Build the 10 trials (1-of-8 each)
+questionBanks.forEach((bank, i) => {
+  const chosen = pick(bank);
+  timeline.push({
+    type: jsPsychHtmlButtonResponse,
+    stimulus: `
+      <div style="text-align:center">
+        <h3>Question ${i+1} / 10</h3>
+        <img class="stim" src="${chosen}" alt="stimulus">
+        <p class="muted" style="margin-top:.75rem">Answer the question about this figure:</p>
+      </div>`,
+    choices: ANSWER_CHOICES,
+    data: {question_id:`Q${i+1}`, image: chosen}
+  });
+});
+
+// 5) Exit fullscreen
+timeline.push({
+  type: jsPsychFullscreen,
+  fullscreen_mode: false,
+  button_label: "Finish"
+});
+
+// Go!
 jsPsych.run(timeline);
 </script>
 </body>
