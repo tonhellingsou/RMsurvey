@@ -110,7 +110,7 @@ function sendToSheets(rows){
 const jsPsych = initJsPsych({
   on_finish: async () => {
     const rows = jsPsych.data.get().filter({trial_type:'html-button-response'}).values();
-    const res = await postRows(rows);
+    const res = await sendToSheets(rows);
     if (res.ok) {
       document.body.innerHTML =
         `<p>✅ Data sent to Google Sheet (${res.mode}).</p>` +
