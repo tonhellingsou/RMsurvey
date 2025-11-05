@@ -1,20 +1,154 @@
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>My experiment</title>
-    <script src="https://unpkg.com/jspsych@8.2.2"></script>
-    <script src="https://unpkg.com/@jspsych/plugin-html-keyboard-response@2.1.0"></script>
-    <link href="https://unpkg.com/jspsych@8.2.2/css/jspsych.css" rel="stylesheet" type="text/css" />
-  </head>
-  <body></body>
-  <script>
-    const jsPsych = initJsPsych();
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Image RT Study</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    const hello_trial = {
-      type: jsPsychHtmlKeyboardResponse,
-      stimulus: 'Hello world!'
+  <!-- LOCAL jsPsych (no CDNs) -->
+  <script src="lib/jspsych/jspsych.js"></script>
+  <script src="lib/jspsych/plugin-preload.js"></script>
+  <script src="lib/jspsych/plugin-fullscreen.js"></script>
+  <script src="lib/jspsych/plugin-html-button-response.js"></script>
+  <script src="lib/jspsych/plugin-image-button-response.js"></script>
+  <link href="lib/jspsych/jspsych.css" rel="stylesheet" />
+
+<style>
+  #diag{font-family:ui-monospace,Menlo,Consolas,monospace;background:#fff;border:1px solid #ddd;border-radius:8px;margin:12px;padding:10px;white-space:pre-wrap}
+</style>
+<div id="diag">Loading…</div>
+<script>
+(function(){
+  function w(s){ document.getElementById('diag').textContent += s+"\n"; }
+  // Report presence of globals created by the scripts you load
+  w("initJsPsych: " + typeof window.initJsPsych);
+  w("jsPsychPreload: " + typeof window.jsPsychPreload);
+  w("jsPsychFullscreen: " + typeof window.jsPsychFullscreen);
+  w("jsPsychImageButtonResponse: " + typeof window.jsPsychImageButtonResponse);
+
+  // Also surface runtime errors on-page
+  window.addEventListener('error', e => {
+    w("JS error: " + (e.error?.stack || e.message));
+  });
+})();
+</script>
+
+
+  <style>
+    body { background:#fafafa; }
+    .jspsych-content { max-width: 900px; }
+    img { max-width: 80vw; max-height: 70vh; }
+  </style>
+</head>
+<body>
+  <noscript>Please enable JavaScript to run this study.</noscript>
+<script>
+/*** -------------------- CONFIG -------------------- ***/
+// Put your Apps Script Web App URL here (ends with /exec)
+const WEBHOOK ="https://script.google.com/macros/s/AKfycbxl1eYqL2InnaU_iUWJINyGgHt_LZjp6-PcqROv_jWSBa2Ml4tEmwS3oGWt693-Tss_hQ/exec";
+
+async function postRows(rows){
+  // 1) Try normal CORS (lets us see success/failure)
+  try {
+    const res = await fetch(WEBHOOK, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(rows)
+    });
+    if (res.ok) return {ok:true, mode:'cors', status:res.status};
+  } catch (_) {}
+
+  // 2) Fallback: no-cors (bypasses preflight; we can’t read the response)
+  try {
+    await fetch(WEBHOOK, {
+      method: 'POST',
+      mode: 'no-cors',
+      // do NOT set headers here; preflight would be triggered again
+      body: JSON.stringify(rows)
+    });
+    return {ok:true, mode:'no-cors'};
+  } catch (err) {
+    return {ok:false, error:String(err)};
+  }
+}
+
+
+// Choices under each image
+const ANSWER_CHOICES = ["Option A","Option B","Option C","Option D"];
+
+// Define your 10 question banks (each has 8 images)
+const questionBanks = [
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"],
+  ["img/q1_a.jpg","img/q1_b.jpg","img/q1_c.jpg","img/q1_d.jpg","img/q1_e.jpg","img/q1_f.jpg","img/q1_g.jpg","img/q1_h.jpg"]
+];
+
+// Participant id (from ?pid=… or random)
+const pid = new URLSearchParams(location.search).get('pid') || crypto.randomUUID().slice(0,8);
+
+/*** -------------------- HELPERS -------------------- ***/
+function pickOne(arr){ return arr[Math.floor(Math.random()*arr.length)]; }
+
+function sendToSheets(rows){
+  if (!WEBHOOK || WEBHOOK.includes("PUT_YOUR")) return Promise.resolve(false);
+  return fetch(WEBHOOK, {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(rows)
+  }).then(() => true).catch(() => false);
+}
+
+/*** -------------------- STUDY -------------------- ***/
+const jsPsych = initJsPsych({
+  on_finish: async () => {
+    const rows = jsPsych.data.get().filter({trial_type:'html-button-response'}).values();
+    const res = await postRows(rows);
+    if (res.ok) {
+      document.body.innerHTML =
+        `<p>✅ Data sent to Google Sheet (${res.mode}).</p>` +
+        (res.status ? `<p>Status: ${res.status}</p>` : '');
+    } else {
+      jsPsych.data.get().localSave('csv','responses_backup.csv');
+      document.body.innerHTML =
+        `<p>⚠️ Upload failed — CSV downloaded as backup.</p><pre>${res.error||''}</pre>`;
     }
+  }
+});
 
-    jsPsych.run([hello_trial]);
-  </script>
+// ===== keep your initJsPsych as-is, then use THIS timeline =====
+const timeline = [];
+
+// 1) Fullscreen
+timeline.push({
+  type: jsPsychFullscreen,
+  message: `<p>We’ll go fullscreen for best timing.</p>`,
+  button_label: "Start",
+  fullscreen_mode: true
+});
+
+// 2) Diagnostic trial right after fullscreen
+timeline.push({
+  type: jsPsychFullscreen,
+  message: "We'll go fullscreen for best timing.",
+  button_label: "Start",
+  fullscreen_mode: true
+});
+
+timeline.push({
+  type: jsPsychHtmlButtonResponse,
+  stimulus: "<h1>Hello!</h1>",
+  choices: ["OK"]
+});
+
+jsPsych.run(timeline);
+</script>
+</body>
 </html>
