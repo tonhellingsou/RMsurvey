@@ -2,81 +2,57 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.7</title>
+  <title>Data Visualization Survey 1.8</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
   <script src="lib/jspsych/jspsych.js"></script>
-  <script src="lib/jspsych/plugin-fullscreen.js"></script>
   <script src="lib/jspsych/plugin-preload.js"></script>
   <script src="lib/jspsych/plugin-html-button-response.js"></script>
   <script src="lib/jspsych/plugin-survey-html-form.js"></script>
+  <script src="lib/jspsych/plugin-html-keyboard-response.js"></script>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
-    body { background:#f3f3f3; margin:0; font-family:system-ui,sans-serif; }
-    .jspsych-content { max-width:900px; margin:auto; }
-    img.stim { max-width:80vw; max-height:65vh; display:block; margin:1rem auto; border:1px solid #ccc; }
-    .muted { color:#666; font-size:0.9em; }
+    body { background:#f3f3f3; margin:0; font-family:system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; }
+    .jspsych-content { max-width: 900px; margin:auto; }
+    img.stim { max-width:80vw; max-height:65vh; display:block; margin:1rem auto; border:1px solid #ddd; }
+    .muted { color:#666; font-size:0.95rem; }
 
-    /* Layout the answer buttons in a responsive grid with spacing */
-    .jspsych-html-button-response-btngroup{
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-      gap: 12px;                    /* space between buttons */
-      justify-items: stretch;
-      margin-top: 0.75rem;
+    /* Card-style radios */
+    .options { display:grid; grid-template-columns: repeat(auto-fit, minmax(220px,1fr)); gap:12px; margin:1rem auto 0; }
+    .option-card {
+      display:flex; align-items:center; gap:.6rem;
+      background:#fff; border:1px solid #d8dbe0; border-radius:12px; padding:.8rem .9rem;
+      cursor:pointer; transition: box-shadow .2s ease, border-color .2s ease, background .2s ease;
     }
-  
-    /* Modern button look */
-    .jspsych-btn{
-      appearance: none;
-      border: 1px solid #d3d6db;
-      background: #fff;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 16px;
-      line-height: 1.2;
-      cursor: pointer;
-      box-shadow: 0 1px 2px rgba(0,0,0,.06);
-      transition: transform .06s ease, box-shadow .2s ease, border-color .2s ease, background .2s ease;
-      text-align: center;
-    }
-  
-    .jspsych-btn:hover{
-      box-shadow: 0 4px 10px rgba(0,0,0,.08);
-      transform: translateY(-1px);
-      border-color: #c6cad0;
-    }
-  
-    .jspsych-btn:active{
-      transform: translateY(0);
-      box-shadow: 0 1px 2px rgba(0,0,0,.05);
-    }
-  
-    .jspsych-btn:focus-visible{
-      outline: 3px solid #8bb6ff;   /* accessible focus ring */
-      outline-offset: 2px;
-    }
-  
-    /* Make tap targets comfy on mobile */
-    @media (max-width: 520px){
-      .jspsych-html-button-response-btngroup{
-        grid-template-columns: 1fr; /* stack vertically on small screens */
-        gap: 10px;
-      }
-      .jspsych-btn{ font-size: 17px; padding: 14px 16px; }
-    }
+    .option-card:hover { box-shadow:0 4px 10px rgba(0,0,0,.06); border-color:#cbd0d8; background:#f9fbff; }
+    .option-card input[type="radio"] { transform:scale(1.2); accent-color:#2563eb; }
 
-    input[type="radio"] {
-      transform: scale(1.25);
-      accent-color: #2563eb; /* blue accent */
+    /* Demographics layout */
+    .form-grid { display:grid; gap:14px; grid-template-columns: 1fr 1fr; }
+    .form-grid .full { grid-column:1 / -1; }
+    .field-card {
+      background:#fff; border:1px solid #d8dbe0; border-radius:12px; padding:12px 14px;
     }
-    label:hover { background:#eef3ff; border-color:#c7d2fe; }
+    .field-card h4 { margin:.2rem 0 .6rem 0; font-size:1rem; }
+    .chips { display:flex; flex-wrap:wrap; gap:10px; }
+    .chip { padding:8px 12px; border-radius:999px; border:1px solid #d8dbe0; background:#fff; cursor:pointer; }
+    .chip input { display:none; }
+    .chip.selected { border-color:#2563eb; background:#eff6ff; }
+
+    .btn-primary {
+      display:inline-block; padding:.8rem 1.1rem; border-radius:10px; border:1px solid #2563eb;
+      background:#2563eb; color:#fff; font-weight:600; cursor:pointer;
+    }
+    .center { text-align:center; }
+    details summary { cursor:pointer; }
+    .bi { vertical-align:-0.1em; }
   </style>
 </head>
 <body>
 <script>
+  
 /* ---------------- CONFIG ---------------- */
 const WEBHOOK = "https://script.google.com/macros/s/AKfycbxH_MD-ZK_fZ3Lug4WVMGb3I3VHBk5i--k_5zqAdfSdCrtovCQihElQBK4FsBN2B97x_w/exec";
 
@@ -97,18 +73,8 @@ const ANSWER_CHOICES = {
   10:["Under 10 seconds","10–20 seconds","More than 20 seconds"]
 };
 
-// shuffle answers to randomize order
-function shuffle(array){
-  // Fisher–Yates
-  const a = array.slice();
-  for (let i = a.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [a[i], a[j]] = [a[j], a[i]];
-  }
-  return a;
-}
-  
-// image banks
+
+// Image banks (you currently have only q1_*; keep structure and add files later)
 function bank(n){
   return [
     `img/q${n}_a.jpg`,`img/q${n}_b.jpg`,`img/q${n}_c.jpg`,`img/q${n}_d.jpg`,
@@ -117,17 +83,14 @@ function bank(n){
 }
 const questionBanks = Array.from({length:10}, (_,i)=>bank(i+1));
 
-/* ---------------- HELPER ---------------- */
+/* ---------------- HELPERS ---------------- */
 const pick = arr => arr[Math.floor(Math.random()*arr.length)];
+function shuffle(a){ const c=a.slice(); for(let i=c.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1)); [c[i],c[j]]=[c[j],c[i]];} return c; }
 
+// POST with CORS then no-cors fallback
 async function postRows(rows){
-  // same CORS+no-cors fallback
   try {
-    const res = await fetch(WEBHOOK, {
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(rows)
-    });
+    const res = await fetch(WEBHOOK,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(rows)});
     if(res.ok) return {ok:true,mode:'cors'};
   } catch(_){}
   try {
@@ -139,70 +102,59 @@ async function postRows(rows){
 /* ---------------- JSPSYCH ---------------- */
 const jsPsych = initJsPsych({
   on_finish: async () => {
-    // show saving screen
-    document.body.innerHTML = `
-      <div style="text-align:center;padding:3rem">
-        <h2>Answers are being saved. Do not close this window yet.</h2>
-      </div>`;
+    // Show saving message (no local CSV)
+    document.body.innerHTML = `<div class="center" style="padding:3rem">
+      <h2>Answers are being saved. Do not close this window yet.</h2>
+    </div>`;
 
-    // collect question rows
-    const qtrials = jsPsych.data.get().filter({trial_type:'survey-html-form', kind:'question'}).values();
-    const rows = qtrials.map((t,i) => ({
-      participant_id: PID,
-      trial: i+1,
-      question_id: t.question_id,
-      image: t.image,
-      response: (t.response && (t.response.answer ?? t.response.response ?? "")) + "",
-      rt: Math.round(t.rt)
-    }));
+    // Collect question rows (we stored them ourselves on finishTrial)
+    const qrows = jsPsych.data.get().filter({kind:'question'}).values();
 
-    // collect demographics (first/only)
-    const demo = jsPsych.data.get().filter({trial_type:'survey-html-form', kind:'demographics'}).values()[0];
-    if (demo) {
-      rows.push({
-        participant_id: PID,
-        trial: 'demographics',
-        question_id: 'demographics',
-        image: '',
-        response: JSON.stringify(demo.response || {}),
-        rt: ''
-      });
-    }
+    // Demographics row
+    const d = jsPsych.data.get().filter({kind:'demographics'}).values()[0];
+    if (d) qrows.push({
+      participant_id: PID, trial: 'demographics', question_id: 'demographics',
+      image: '', response: JSON.stringify(d.response || {}), rt: ''
+    });
 
-    // send
-    const result = await postRows(rows);
+    const result = await postRows(qrows);
     document.body.innerHTML = result.ok
-      ? `<div style="padding:2rem;text-align:center"><h2>✅ Thank you!</h2><p>Your responses have been saved (${result.mode}).</p></div>`
-      : `<div style="padding:2rem;text-align:center"><h2>⚠️ Upload failed.</h2><p>${result.error||''}</p></div>`;
+      ? `<div class="center" style="padding:2rem"><h2>✅ Thank you!</h2><p>Your responses have been saved (${result.mode}).</p></div>`
+      : `<div class="center" style="padding:2rem"><h2>⚠️ Upload failed.</h2><p>${result.error||''}</p></div>`;
   }
 });
 
 const timeline = [];
 
-/* ---------------- INSTRUCTIONS ---------------- */
+/* ---------------- INTRO (with icons) ---------------- */
 timeline.push({
-  type: jsPsychHtmlButtonResponse,
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS", // we’ll advance on click of the Begin button
   stimulus: `
-    <div style="text-align:left;max-width:700px;margin:auto">
-      <h1>Visual Design and Interpretation Speed Study</h1>
-      <p>Welcome! In this survey you will answer questions about different data visualizations.</p>
-      <p>You will see <b>10 images</b> in total. For each one, answer a short multiple-choice question.</p>
-          <ul style="list-style:none; padding:0; margin:1rem 0;">
-            <li style="margin:.5em 0;"><i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
-                <b>10 images</b> to answer questions about.</li>
-            <li style="margin:.5em 0;"><i class="bi bi-lightning-charge" style="color:#eab308;margin-right:.5em;"></i>
-                Your <b>reaction time</b> will be measured for each answer.</li>
-            <li style="margin:.5em 0;"><i class="bi bi-hourglass-split" style="color:#f97316;margin-right:.5em;"></i>
-                The survey is <b>time-bound</b>: it can’t be paused.</li>
-            <li style="margin:.5em 0;"><i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
-                Your results are <b>confidential</b> and used only for research.</li>
-          </ul>
-      <p class="muted">Click “Begin” when you are ready.</p>
+    <div style="text-align:left;max-width:720px;margin:0 auto">
+      <h1 style="margin:0 0 .5rem 0;">Visual Design & Interpretation Speed</h1>
+      <p>Welcome! You'll answer questions about different data visualizations.</p>
+      <ul style="list-style:none;padding:0;margin:1rem 0;">
+        <li style="margin:.5em 0;"><i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
+            <b>10 images</b> to evaluate.</li>
+        <li style="margin:.5em 0;"><i class="bi bi-lightning-charge" style="color:#eab308;margin-right:.5em;"></i>
+            We measure your <b>reaction time</b> for each answer.</li>
+        <li style="margin:.5em 0;"><i class="bi bi-hourglass-split" style="color:#f97316;margin-right:.5em;"></i>
+            The survey is <b>time-bound</b> and can’t be paused.</li>
+        <li style="margin:.5em 0;"><i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
+            Your results are <b>confidential</b>.</li>
+      </ul>
+      <div class="center" style="margin-top:1rem">
+        <button id="begin" class="btn-primary">Begin</button>
+      </div>
+      <p class="muted center" style="margin-top:.5rem">Participant: <b>${PID}</b></p>
     </div>`,
-  choices:["Begin"]
+  on_load: () => {
+    document.getElementById('begin').addEventListener('click', () => jsPsych.finishTrial());
+  }
 });
 
-/* ---------------- PRELOAD ---------------- */
+/* ---------------- PRELOAD (optional, continue after errors) ---------------- */
 timeline.push({
   type: jsPsychPreload,
   images: questionBanks.flat(),
@@ -211,90 +163,170 @@ timeline.push({
   continue_after_error:true
 });
 
-
-/* ---------------- QUESTIONS ---------------- */
+/* ---------------- QUESTIONS (radio + randomized order + true one-click advance) ---------------- */
 questionBanks.forEach((bank, i) => {
   const qnum = i + 1;
   const chosen = pick(bank);
-  const choices = ANSWER_CHOICES[qnum] || ["Option 1","Option 2"];
-
-  // Randomize the visible order
-  const shuffled = shuffle(choices);
+  const baseChoices = ANSWER_CHOICES[qnum] || ["Option 1","Option 2"];
+  const shuffled = shuffle(baseChoices);
 
   timeline.push({
-    type: jsPsychSurveyHtmlForm,
-    preamble: `
+    type: jsPsychHtmlKeyboardResponse,
+    choices: "NO_KEYS", // we’ll finish the trial ourselves when a radio is clicked
+    stimulus: `
       <div style="text-align:center">
         <h3>Question ${qnum} / 10</h3>
         <img class="stim" src="${chosen}" alt="stimulus ${qnum}">
         <p class="muted">Select the option that best answers the question.</p>
-      </div>`,
-    html: `
-      <div style="text-align:left;max-width:600px;margin:1rem auto 0;">
+      </div>
+      <div class="options" id="optwrap">
         ${shuffled.map(ch => `
-          <label style="display:block;margin:.5em 0;padding:.4em .6em;background:#fff;border-radius:10px;cursor:pointer;border:1px solid #d1d5db;">
-            <input type="radio" name="answer" value="${ch}" style="margin-right:.5em;">
-            ${ch}
-          </label>
-        `).join("")}
-      </div>`,
-    button_label: "Next", // we auto-submit on change, so this is a fallback
+          <label class="option-card">
+            <input type="radio" name="answer" value="${ch}">
+            <span>${ch}</span>
+          </label>`).join("")}
+      </div>
+    `,
     on_load: () => {
-      // Scope to the current trial's form only
       const root = jsPsych.getDisplayElement();
-      const form = root.querySelector('form.jspsych-survey-html-form');
-
-      // Auto-advance when a radio is picked
-      root.querySelectorAll('input[type=radio][name=answer]').forEach(input => {
-        input.addEventListener('change', () => {
-          // give the browser a tick to register the checked value
-          setTimeout(() => {
-            if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
-            else if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
-          }, 0);
+      const radios = root.querySelectorAll('input[type=radio][name=answer]');
+      const t0 = performance.now();
+      radios.forEach(r => {
+        r.addEventListener('change', () => {
+          const rt = Math.round(performance.now() - t0);
+          const val = r.value;
+          // immediately finish the trial and store our data
+          jsPsych.finishTrial({
+            kind: 'question',
+            participant_id: PID,
+            question_id: `Q${qnum}`,
+            image: chosen,
+            response: val,
+            rt: rt,
+            choice_order: shuffled.join(' | ')
+          });
         }, { once: true });
       });
-    },
-    data: {
-      kind: 'question',
-      question_id: `Q${qnum}`,
-      image: chosen,
-      // (optional) store the randomized order for auditing/analysis
-      choice_order: shuffled.join(' | ')
     }
   });
 });
 
-/* ---------------- DEMOGRAPHICS ---------------- */
+/* ---------------- DEMOGRAPHICS (modern cards, includes gender & industry list) ---------------- */
 timeline.push({
-  type: jsPsychSurveyHtmlForm,
-  preamble: "<h3>Almost done!</h3><p>Please provide some background information.</p>",
-  html: `
-    <p><label>Age group:<br>
-      <select name="age">
-        <option value="">Select…</option>
-        <option>18–24</option><option>25–34</option><option>35–44</option>
-        <option>45–54</option><option>55–64</option><option>65+</option>
-      </select></label></p>
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: `
+    <div style="max-width:900px;margin:0 auto">
+      <h3 class="center">Almost done — a few background questions</h3>
 
-    <p><label>Highest education:<br>
-      <select name="education">
-        <option value="">Select…</option>
-        <option>High school</option><option>Bachelor</option>
-        <option>Master</option><option>PhD</option><option>Other</option>
-      </select></label></p>
+      <div class="form-grid">
+        <!-- Age group -->
+        <div class="field-card">
+          <h4>Age group</h4>
+          <div class="chips" id="age-chips">
+            ${["18–24","25–34","35–44","45–54","55–64","65+"].map(a => `
+              <label class="chip"><input type="radio" name="age" value="${a}">${a}</label>`).join('')}
+          </div>
+        </div>
 
-    <p><label>Industry of work:<br>
-      <input name="industry" style="width:100%" placeholder="e.g., Education, IT, Healthcare"></label></p>
+        <!-- Highest education -->
+        <div class="field-card">
+          <h4>Highest education</h4>
+          <div class="chips" id="edu-chips">
+            ${["High school","Bachelor","Master","PhD","Other"].map(a => `
+              <label class="chip"><input type="radio" name="education" value="${a}">${a}</label>`).join('')}
+          </div>
+        </div>
 
-    <p><label>Self-reported data literacy (1–5):<br>
-      <input type="range" name="literacy" min="1" max="5" step="1" value="3"
-        oninput="this.nextElementSibling.value=this.value">
-      <output>3</output>
-    </label></p>
+        <!-- Gender -->
+        <div class="field-card">
+          <h4>Gender</h4>
+          <div class="chips" id="gender-chips">
+            ${["Male","Female","Other","Prefer not to say"].map(a => `
+              <label class="chip"><input type="radio" name="gender" value="${a}">${a}</label>`).join('')}
+          </div>
+        </div>
+
+        <!-- Data literacy -->
+        <div class="field-card">
+          <h4>Self-reported data literacy (1–5)</h4>
+          <div>
+            <input type="range" id="lit" min="1" max="5" step="1" value="3"
+              oninput="document.getElementById('litval').textContent=this.value">
+            <span id="litval">3</span>
+          </div>
+        </div>
+
+        <!-- Industry (full row) -->
+        <div class="field-card full">
+          <h4>Industry of work</h4>
+          <div class="options" id="industry-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
+            ${[
+              "Administratieve beroepen",
+              "Agrarisch en groen",
+              "Autobranche",
+              "Bouw",
+              "Cultuur, sport en recreatie",
+              "Detail- en groothandel",
+              "Financiële dienstverlening",
+              "Horeca",
+              "ICT-beroepen",
+              "Industrie",
+              "Klimaat",
+              "Onderwijs",
+              "Overheid",
+              "Sociaal werk, jeugdzorg en kinderopvang",
+              "Transport en logistiek",
+              "Zakelijke dienstverlening",
+              "Zorg"
+            ].map(label => `
+              <label class="option-card">
+                <input type="radio" name="industry" value="${label}">
+                <span>${label}</span>
+              </label>`).join('')}
+          </div>
+        </div>
+      </div>
+
+      <div class="center" style="margin-top:1.2rem">
+        <button id="submit-demo" class="btn-primary">Submit</button>
+      </div>
+    </div>
   `,
-  button_label:"Submit",
-  data: { kind: 'demographics' }
+  on_load: () => {
+    // toggle chip .selected state
+    document.querySelectorAll('.chip').forEach(ch => {
+      ch.addEventListener('click', () => {
+        const name = ch.querySelector('input').name;
+        document.querySelectorAll(`.chip input[name="${name}"]`).forEach(i => i.parentElement.classList.remove('selected'));
+        ch.classList.add('selected');
+      });
+    });
+
+    document.getElementById('submit-demo').addEventListener('click', () => {
+      // collect values
+      const getVal = (name) => {
+        const el = document.querySelector(`input[name="${name}"]:checked`);
+        return el ? el.value : "";
+      };
+      const payload = {
+        age: getVal('age'),
+        education: getVal('education'),
+        gender: getVal('gender'),
+        literacy: document.getElementById('lit').value,
+        industry: getVal('industry')
+      };
+
+      // (optional) simple required check: require age, education, gender, industry
+      const missing = ['age','education','gender','industry'].filter(k => !payload[k]);
+      if (missing.length) {
+        alert("Please select: " + missing.join(", "));
+        return;
+      }
+
+      jsPsych.finishTrial({ kind:'demographics', response: payload });
+    });
+  }
 });
 
 /* ---------------- RUN ---------------- */
