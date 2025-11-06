@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.3</title>
+  <title>Data Visualization Survey 1.4</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -67,6 +67,12 @@
       }
       .jspsych-btn{ font-size: 17px; padding: 14px 16px; }
     }
+
+    input[type="radio"] {
+      transform: scale(1.25);
+      accent-color: #2563eb; /* blue accent */
+    }
+    label:hover { background:#eef3ff; }
   </style>
 </head>
 <body>
@@ -191,19 +197,41 @@ timeline.push({
 
 
 /* ---------------- QUESTIONS ---------------- */
-questionBanks.forEach((bank,i)=>{
-  const qnum=i+1;
-  const chosen=pick(bank);
+questionBanks.forEach((bank, i) => {
+  const qnum = i + 1;
+  const chosen = pick(bank);
+  const choices = ANSWER_CHOICES[qnum] || ["Option 1", "Option 2"];
+
   timeline.push({
-    type: jsPsychHtmlButtonResponse,
-    stimulus: `
+    type: jsPsychSurveyHtmlForm,
+    preamble: `
       <div style="text-align:center">
         <h3>Question ${qnum} / 10</h3>
         <img class="stim" src="${chosen}" alt="stimulus ${qnum}">
-        <p class="muted">Please select the option that best answers the question about this figure.</p>
+        <p class="muted">Select the option that best answers the question.</p>
       </div>`,
-    choices: ANSWER_CHOICES[qnum] || ["Option 1","Option 2"],
-    data:{question_id:`Q${qnum}`,image:chosen}
+    html: `
+      <div style="text-align:left;max-width:600px;margin:1rem auto 0;">
+        ${choices
+          .map(
+            (ch, idx) => `
+          <label style="display:block;margin:.5em 0;padding:.3em .5em;background:#fff;border-radius:8px;cursor:pointer;border:1px solid #ccc;">
+            <input type="radio" name="response" value="${ch}" style="margin-right:.5em;">
+            ${ch}
+          </label>`
+          )
+          .join("")}
+      </div>`,
+    button_label: "Next", // won’t be visible; auto-advance below
+    on_load: () => {
+      // find all radio buttons and auto-advance when any is clicked
+      document.querySelectorAll('input[type=radio][name=response]').forEach(el => {
+        el.addEventListener('change', () => {
+          document.querySelector('form.jspsych-survey-html-form').dispatchEvent(new Event('submit'));
+        });
+      });
+    },
+    data: { question_id: `Q${qnum}`, image: chosen },
   });
 });
 
