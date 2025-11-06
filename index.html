@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.0.2</title>
+  <title>Data Visualization Survey 1.0.3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -149,23 +149,24 @@ const jsPsych = initJsPsych({
 
 const timeline = [];
 
-/* ---------------- INTRO (with icons) ---------------- */
+/* ---------------- INTRO ---------------- */
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
-  choices: "NO_KEYS", // we’ll advance on click of the Begin button
+  choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:left;max-width:720px;margin:0 auto">
-      <h1 style="margin:0 0 .5rem 0;">Visual Design & Interpretation Speed</h1>
-      <p>Welcome! You'll answer questions about different data visualizations.</p>
+      <h1 style="margin:0 0 .5rem 0;">Visual Design & Interpretation Speed Study</h1>
+      <p>Welcome! Before the main survey, you will first complete a short <b>5-question pre-test</b> about basic data understanding.</p>
+      <p>This helps us get an idea of your prior knowledge about data and visualizations. It only takes about a minute.</p>
       <ul style="list-style:none;padding:0;margin:1rem 0;">
         <li style="margin:.5em 0;"><i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
-            <b>10 images</b> to evaluate.</li>
+            <b>5 pre-test questions</b> to start, followed by the main survey of <b>10 images</b>.</li>
         <li style="margin:.5em 0;"><i class="bi bi-lightning-charge" style="color:#eab308;margin-right:.5em;"></i>
-            We measure your <b>reaction time</b> for each answer.</li>
+            Your <b>reaction time</b> will be measured for each answer.</li>
         <li style="margin:.5em 0;"><i class="bi bi-hourglass-split" style="color:#f97316;margin-right:.5em;"></i>
-            The survey is <b>time-bound</b> and can’t be paused.</li>
+            The study is <b>time-bound</b> and can’t be paused once started.</li>
         <li style="margin:.5em 0;"><i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
-            Your results are <b>confidential</b>.</li>
+            Your results are <b>confidential</b> and used only for research.</li>
       </ul>
       <div class="center" style="margin-top:1rem">
         <button id="begin" class="btn-primary">Begin</button>
@@ -186,6 +187,114 @@ timeline.push({
   continue_after_error:true
 });
 
+/* ---------------- READY SCREEN: Pre-test ---------------- */
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: `
+    <div style="text-align:center;max-width:600px;margin:auto;">
+      <h2>Pre-test is starting</h2>
+      <p>This short pre-test will check your basic knowledge of data and visualizations.</p>
+      <p>Click the button below when you're ready to begin.</p>
+      <button id="start-pretest" class="btn-primary" style="margin-top:1rem;">Start Pre-test</button>
+    </div>
+  `,
+  on_load: () => {
+    document.getElementById('start-pretest').addEventListener('click', () => jsPsych.finishTrial());
+  }
+});
+  
+/* ---------------- PRETEST: 5 Data Knowledge Questions ---------------- */
+const PRETEST = [
+  {
+    id: "K1",
+    q: "A bar chart compares the number of students in different classes. What does each bar’s height represent?",
+    choices: ["The number of students ✅", "The name of the class", "The color used for that class", "The average grade"],
+    correct: "The number of students ✅"
+  },
+  {
+    id: "K2",
+    q: "In a bar chart showing average monthly rainfall, what does the label on the x-axis usually represent?",
+    choices: ["The amount of rainfall", "The months of the year ✅", "The type of weather", "The average temperature"],
+    correct: "The months of the year ✅"
+  },
+  {
+    id: "K3",
+    q: "When comparing two box plots, the plot with a longer box shows:",
+    choices: ["Higher average values", "Greater variability ✅", "Fewer data points", "No outliers"],
+    correct: "Greater variability ✅"
+  },
+  {
+    id: "K4",
+    q: "A scatter plot shows that as temperature increases, ice cream sales also increase. What kind of relationship does this suggest?",
+    choices: ["Negative correlation", "Positive correlation ✅", "No correlation", "Random variation"],
+    correct: "Positive correlation ✅"
+  },
+  {
+    id: "K5",
+    q: "A bar chart starts its y-axis at 40 instead of 0. What effect might this have?",
+    choices: ["It makes differences appear larger than they are ✅", "It makes differences appear smaller", "It has no effect", "It improves readability"],
+    correct: "It makes differences appear larger than they are ✅"
+  }
+];
+
+PRETEST.forEach((item, idx) => {
+  const shuffled = jsPsych.randomization.shuffle(item.choices);
+  timeline.push({
+    type: jsPsychHtmlKeyboardResponse,
+    choices: "NO_KEYS",
+    stimulus: `
+      <div style="text-align:left;max-width:700px;margin:auto;">
+        <h3>Pre-test question ${idx + 1} / ${PRETEST.length}</h3>
+        <p style="margin:1em 0;font-size:1.05rem;">${item.q}</p>
+        <div class="options">
+          ${shuffled.map(opt => `
+            <label class="option-card">
+              <input type="radio" name="answer" value="${opt}">
+              <span>${opt.replace(" ✅","")}</span>
+            </label>`).join("")}
+        </div>
+      </div>
+    `,
+    on_load: () => {
+      const root = jsPsych.getDisplayElement();
+      const radios = root.querySelectorAll('input[type=radio][name=answer]');
+      radios.forEach(r => {
+        r.addEventListener('change', () => {
+          const rt = Math.round(performance.now() - jsPsych.getStartTime());
+          jsPsych.finishTrial({
+            kind: 'pretest',
+            question_id: item.id,
+            question_text: item.q,
+            response: r.value.replace(" ✅",""),
+            correct_answer: item.correct.replace(" ✅",""),
+            correct: r.value.includes("✅"),
+            rt: rt
+          });
+        }, { once:true });
+      });
+    }
+  });
+});
+
+/* ---------------- READY SCREEN: Main Survey ---------------- */
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: `
+    <div style="text-align:center;max-width:600px;margin:auto;">
+      <h2>Main survey is starting</h2>
+      <p>Next, you'll answer questions about <b>10 data visualizations</b>.</p>
+      <p>Each one will appear on screen, and you’ll choose the best answer as quickly and accurately as possible.</p>
+      <p>Click below when you’re ready to begin the main survey.</p>
+      <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start Survey</button>
+    </div>
+  `,
+  on_load: () => {
+    document.getElementById('start-survey').addEventListener('click', () => jsPsych.finishTrial());
+  }
+});
+  
 /* ---------------- QUESTIONS (radio + randomized order + true one-click advance) ---------------- */
 questionBanks.forEach((bank, i) => {
   const qnum = i + 1;
