@@ -135,6 +135,7 @@ timeline.push({
   continue_after_error:true
 });
 
+
 /* ---------------- QUESTIONS ---------------- */
 questionBanks.forEach((bank,i)=>{
   const qnum=i+1;
@@ -148,4 +149,43 @@ questionBanks.forEach((bank,i)=>{
         <p class="muted">Please select the option that best answers the question about this figure.</p>
       </div>`,
     choices: ANSWER_CHOICES[qnum] || ["Option 1","Option 2"],
-    data:{question_id:`Q${qnum}`,image:chosen}_
+    data:{question_id:`Q${qnum}`,image:chosen}
+  });
+});
+
+/* ---------------- DEMOGRAPHICS ---------------- */
+timeline.push({
+  type: jsPsychSurveyHtmlForm,
+  preamble: "<h3>Almost done!</h3><p>Please provide some background information.</p>",
+  html: `
+    <p><label>Age group:<br>
+      <select name="age">
+        <option value="">Select…</option>
+        <option>18–24</option><option>25–34</option><option>35–44</option>
+        <option>45–54</option><option>55–64</option><option>65+</option>
+      </select></label></p>
+
+    <p><label>Highest education:<br>
+      <select name="education">
+        <option value="">Select…</option>
+        <option>High school</option><option>Bachelor</option>
+        <option>Master</option><option>PhD</option><option>Other</option>
+      </select></label></p>
+
+    <p><label>Industry of work:<br>
+      <input name="industry" style="width:100%" placeholder="e.g., Education, IT, Healthcare"></label></p>
+
+    <p><label>Self-reported data literacy (1–5):<br>
+      <input type="range" name="literacy" min="1" max="5" step="1" value="3"
+        oninput="this.nextElementSibling.value=this.value">
+      <output>3</output>
+    </label></p>
+  `,
+  button_label:"Submit"
+});
+
+/* ---------------- RUN ---------------- */
+jsPsych.run(timeline);
+</script>
+</body>
+</html>
