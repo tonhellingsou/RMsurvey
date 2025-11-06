@@ -11,6 +11,7 @@
   <script src="lib/jspsych/plugin-preload.js"></script>
   <script src="lib/jspsych/plugin-html-button-response.js"></script>
   <script src="lib/jspsych/plugin-survey-html-form.js"></script>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 
   <style>
     body { background:#f3f3f3; margin:0; font-family:system-ui,sans-serif; }
@@ -164,12 +165,16 @@ timeline.push({
       <h1>Visual Design and Interpretation Speed Study</h1>
       <p>Welcome! In this survey you will answer questions about different data visualizations.</p>
       <p>You will see <b>10 images</b> in total. For each one, answer a short multiple-choice question.</p>
-      <ul>
-        <li>Your reaction time will be measured from the moment the question appears until you click an answer.</li>
-        <li>The survey is <b>time-bound</b>: once started, it cannot be paused.</li>
-        <li>Please complete it in one sitting and avoid switching tabs or windows.</li>
-        <li>Your answers are <b>confidential</b> and will only be used for research purposes.</li>
-      </ul>
+          <ul style="list-style:none; padding:0; margin:1rem 0;">
+            <li style="margin:.5em 0;"><i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
+                <b>10 images</b> to answer questions about.</li>
+            <li style="margin:.5em 0;"><i class="bi bi-lightning-charge" style="color:#eab308;margin-right:.5em;"></i>
+                Your <b>reaction time</b> will be measured for each answer.</li>
+            <li style="margin:.5em 0;"><i class="bi bi-hourglass-split" style="color:#f97316;margin-right:.5em;"></i>
+                The survey is <b>time-bound</b>: it can’t be paused.</li>
+            <li style="margin:.5em 0;"><i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
+                Your results are <b>confidential</b> and used only for research.</li>
+          </ul>
       <p class="muted">Click “Begin” when you are ready.</p>
     </div>`,
   choices:["Begin"]
