@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.4</title>
+  <title>Data Visualization Survey 1.6</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -128,32 +128,37 @@ async function postRows(rows){
 /* ---------------- JSPSYCH ---------------- */
 const jsPsych = initJsPsych({
   on_finish: async () => {
-    // show saving message
+    // show saving screen
     document.body.innerHTML = `
       <div style="text-align:center;padding:3rem">
-        <h2>Answers are being saved.<br>Please do not close this window yet.</h2>
+        <h2>Answers are being saved. Do not close this window yet.</h2>
       </div>`;
-    // gather all trials
-    const trials = jsPsych.data.get().filter({trial_type:'html-button-response'}).values();
-    const rows = trials.map((t,i)=>({
-      participant_id:PID,
-      trial:i+1,
-      question_id:t.question_id,
-      image:t.image,
-      response:t.response,
-      rt:Math.round(t.rt)
-    }));
-    // also demographic data
-    const demo = jsPsych.data.get().filter({trial_type:'survey-html-form'}).values()[0];
-    rows.push({
-      participant_id:PID,
-      trial:'demographics',
-      question_id:'demographics',
-      image:'',
-      response:JSON.stringify(demo.response),
-      rt:''
-    });
 
+    // collect question rows
+    const qtrials = jsPsych.data.get().filter({trial_type:'survey-html-form', kind:'question'}).values();
+    const rows = qtrials.map((t,i) => ({
+      participant_id: PID,
+      trial: i+1,
+      question_id: t.question_id,
+      image: t.image,
+      response: (t.response && (t.response.answer ?? t.response.response ?? "")) + "",
+      rt: Math.round(t.rt)
+    }));
+
+    // collect demographics (first/only)
+    const demo = jsPsych.data.get().filter({trial_type:'survey-html-form', kind:'demographics'}).values()[0];
+    if (demo) {
+      rows.push({
+        participant_id: PID,
+        trial: 'demographics',
+        question_id: 'demographics',
+        image: '',
+        response: JSON.stringify(demo.response || {}),
+        rt: ''
+      });
+    }
+
+    // send
     const result = await postRows(rows);
     document.body.innerHTML = result.ok
       ? `<div style="padding:2rem;text-align:center"><h2>✅ Thank you!</h2><p>Your responses have been saved (${result.mode}).</p></div>`
@@ -212,15 +217,11 @@ questionBanks.forEach((bank, i) => {
       </div>`,
     html: `
       <div style="text-align:left;max-width:600px;margin:1rem auto 0;">
-        ${choices
-          .map(
-            (ch, idx) => `
+        ${choices.map(ch => `
           <label style="display:block;margin:.5em 0;padding:.3em .5em;background:#fff;border-radius:8px;cursor:pointer;border:1px solid #ccc;">
-            <input type="radio" name="response" value="${ch}" style="margin-right:.5em;">
+            <input type="radio" name="answer" value="${ch}" style="margin-right:.5em;">
             ${ch}
-          </label>`
-          )
-          .join("")}
+          </label>`).join("")}
       </div>`,
     button_label: "Next", // won’t be visible; auto-advance below
     on_load: () => {
@@ -231,7 +232,7 @@ questionBanks.forEach((bank, i) => {
         });
       });
     },
-    data: { question_id: `Q${qnum}`, image: chosen },
+    data: { kind: 'question', question_id:`Q${qnum}`, image: chosen },
   });
 });
 
@@ -263,7 +264,8 @@ timeline.push({
       <output>3</output>
     </label></p>
   `,
-  button_label:"Submit"
+  button_label:"Submit",
+  data: { kind: 'demographics' }
 });
 
 /* ---------------- RUN ---------------- */
