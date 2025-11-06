@@ -1,182 +1,151 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
-  <title>Survey Test – Diagnostic 4</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8" />
+  <title>Data Visualization Survey</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <!-- jsPsych (from CDN) -->
-  <link rel="stylesheet" href="lib/jspsych/jspsych.css">
-  <script src="lib/jspsych/jspsych.js"></script>
-  <script src="lib/jspsych/plugin-fullscreen.js"></script>
-  <script src="lib/jspsych/plugin-preload.js"></script>
-  <script src="lib/jspsych/plugin-html-button-response.js"></script>
+  <!-- jsPsych (CDN builds) -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jspsych@7.3.3/css/jspsych.css">
+  <script src="https://cdn.jsdelivr.net/npm/jspsych@7.3.3/dist/jspsych.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@jspsych/plugin-html-button-response@1.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@jspsych/plugin-survey-html-form@1.1.2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@jspsych/plugin-preload@1.1.2"></script>
+
   <style>
-    body { background:#fafafa; margin:0; }
-    .jspsych-content { max-width: 900px; }
-    img.stim { max-width:80vw; max-height:70vh; border:1px solid #ddd; }
-    .muted { color:#666; }
-    .warn { background:#fff7d6; border:1px solid #f0d986; padding:0.75rem 1rem; border-radius:8px; }
-    details summary { cursor:pointer; }
+    body { background:#f3f3f3; margin:0; font-family:system-ui,sans-serif; }
+    .jspsych-content { max-width:900px; margin:auto; }
+    img.stim { max-width:80vw; max-height:65vh; display:block; margin:1rem auto; border:1px solid #ccc; }
+    .muted { color:#666; font-size:0.9em; }
   </style>
 </head>
 <body>
 <script>
-/* ========================= CONFIG ========================= */
+/* ---------------- CONFIG ---------------- */
 const WEBHOOK = "https://script.google.com/macros/s/AKfycbxH_MD-ZK_fZ3Lug4WVMGb3I3VHBk5i--k_5zqAdfSdCrtovCQihElQBK4FsBN2B97x_w/exec";
 
-// Answer buttons shown for every question (adjust labels as needed)
-const ANSWER_CHOICES = ["Option A","Option B","Option C"];
+// participant id
+const PID = new URLSearchParams(location.search).get('pid') || (crypto.randomUUID?.() || Math.random().toString(36)).slice(0,8);
 
-// Build 10 banks of 8 image paths each.
-// You currently have only q1_*; leave q2..q10 as-is and add files later.
+// Different answer choices per question
+const ANSWER_CHOICES = {
+  1: ["Bar chart","Line chart","Pie chart","Scatter plot"],
+  2: ["High accuracy","Moderate accuracy","Low accuracy","Cannot tell"],
+  3: ["Male","Female","Other","Prefer not to say"],
+  4: ["North","South","East","West"],
+  5: ["Trend increasing","Trend decreasing","No clear trend","Cannot tell"],
+  6: ["Group A","Group B","Group C","Group D"],
+  7: ["Blue palette","Orange palette","Mixed colors","Grayscale"],
+  8: ["Easily readable","Hard to read","Confusing","Visually pleasing"],
+  9: ["Yes","No"],
+  10:["Under 10 seconds","10–20 seconds","More than 20 seconds"]
+};
+
+// image banks
 function bank(n){
   return [
     `img/q${n}_a.jpg`,`img/q${n}_b.jpg`,`img/q${n}_c.jpg`,`img/q${n}_d.jpg`,
     `img/q${n}_e.jpg`,`img/q${n}_f.jpg`,`img/q${n}_g.jpg`,`img/q${n}_h.jpg`
   ];
 }
-const questionBanks = [bank(1),bank(2),bank(3),bank(4),bank(5),bank(6),bank(7),bank(8),bank(9),bank(10)];
+const questionBanks = Array.from({length:10}, (_,i)=>bank(i+1));
 
-// Participant id from URL (?pid=ABC123) or random short id
-const PID = new URLSearchParams(location.search).get('pid') || (crypto.randomUUID?.() || Math.random().toString(36)).slice(0,8);
-
-/* ========================= HELPERS ========================= */
+/* ---------------- HELPER ---------------- */
 const pick = arr => arr[Math.floor(Math.random()*arr.length)];
 
-// POST to Google Sheets with CORS first, then no-cors fallback
 async function postRows(rows){
-  // First try normal JSON POST (lets us see success/failure)
+  // same CORS+no-cors fallback
   try {
     const res = await fetch(WEBHOOK, {
-      method: 'POST',
-      headers: {'Content-Type':'application/json'},
-      body: JSON.stringify(rows)
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(rows)
     });
-    if (res.ok) return {ok:true, mode:'cors', status:res.status, text:await res.text()};
-  } catch (_) {}
-  // Fallback: no-cors (opaque response, but Sheets still receives the data)
+    if(res.ok) return {ok:true,mode:'cors'};
+  } catch(_){}
   try {
-    await fetch(WEBHOOK, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(rows) // no headers, to avoid preflight
-    });
-    return {ok:true, mode:'no-cors'};
-  } catch (err) {
-    return {ok:false, error:String(err)};
-  }
+    await fetch(WEBHOOK,{method:'POST',mode:'no-cors',body:JSON.stringify(rows)});
+    return {ok:true,mode:'no-cors'};
+  } catch(e){ return {ok:false,error:String(e)}; }
 }
 
-/* ========================= STUDY ========================= */
+/* ---------------- JSPSYCH ---------------- */
 const jsPsych = initJsPsych({
   on_finish: async () => {
-    // Extract only our question trials
+    // show saving message
+    document.body.innerHTML = `
+      <div style="text-align:center;padding:3rem">
+        <h2>Answers are being saved.<br>Please do not close this window yet.</h2>
+      </div>`;
+    // gather all trials
     const trials = jsPsych.data.get().filter({trial_type:'html-button-response'}).values();
-    const rows = trials.map((t,i) => ({
-      participant_id: PID,
-      trial: i+1,
-      question_id: t.question_id || `Q${i+1}`,
-      image: t.image || '',
-      response: t.response,
-      rt: Math.round(t.rt),
-      // Optional client metadata (handy if you add columns on the Sheet side)
-      // ua: navigator.userAgent, w: window.innerWidth, h: window.innerHeight
+    const rows = trials.map((t,i)=>({
+      participant_id:PID,
+      trial:i+1,
+      question_id:t.question_id,
+      image:t.image,
+      response:t.response,
+      rt:Math.round(t.rt)
     }));
+    // also demographic data
+    const demo = jsPsych.data.get().filter({trial_type:'survey-html-form'}).values()[0];
+    rows.push({
+      participant_id:PID,
+      trial:'demographics',
+      question_id:'demographics',
+      image:'',
+      response:JSON.stringify(demo.response),
+      rt:''
+    });
 
     const result = await postRows(rows);
-
-    // Always give a local CSV backup
-    //jsPsych.data.get().localSave('csv', `responses_${PID}.csv`);
-
-    // Show status
-    document.body.innerHTML =
-      result.ok
-        ? `<div style="padding:1rem"><p>✅ Data sent to Google Sheet (${result.mode}).</p>${
-            result.status ? `<p>Status: ${result.status}</p>` : ''
-          }<p class="muted">A CSV was also downloaded locally as backup.</p></div>`
-        : `<div style="padding:1rem"><p>⚠️ Upload failed — CSV downloaded as backup.</p><pre>${result.error||''}</pre></div>`;
+    document.body.innerHTML = result.ok
+      ? `<div style="padding:2rem;text-align:center"><h2>✅ Thank you!</h2><p>Your responses have been saved (${result.mode}).</p></div>`
+      : `<div style="padding:2rem;text-align:center"><h2>⚠️ Upload failed.</h2><p>${result.error||''}</p></div>`;
   }
 });
 
 const timeline = [];
 
-// 0) Fullscreen (optional but recommended)
-timeline.push({
-  type: jsPsychFullscreen,
-  message: `<p>We’ll go fullscreen for best timing.</p>`,
-  button_label: "Start",
-  fullscreen_mode: true
-});
-
-// 1) Quick plugin sanity trial (pure inline SVG)
+/* ---------------- INSTRUCTIONS ---------------- */
 timeline.push({
   type: jsPsychHtmlButtonResponse,
-  stimulus: `<div style="text-align:center">
-    <svg xmlns="http://www.w3.org/2000/svg" width="700" height="200">
-      <rect width="100%" height="100%" fill="#e5e7eb"/>
-      <text x="50%" y="50%" font-size="22" text-anchor="middle" dominant-baseline="middle">
-        Welcome — click to continue
-      </text>
-    </svg>
-    <p class="muted">Participant: <b>${PID}</b></p>
-  </div>`,
-  choices: ["Begin"]
+  stimulus: `
+    <div style="text-align:left;max-width:700px;margin:auto">
+      <h1>Visual Design and Interpretation Speed Study</h1>
+      <p>Welcome! In this survey you will answer questions about different data visualizations.</p>
+      <p>You will see <b>10 images</b> in total. For each one, answer a short multiple-choice question.</p>
+      <ul>
+        <li>Your reaction time will be measured from the moment the question appears until you click an answer.</li>
+        <li>The survey is <b>time-bound</b>: once started, it cannot be paused.</li>
+        <li>Please complete it in one sitting and avoid switching tabs or windows.</li>
+        <li>Your answers are <b>confidential</b> and will only be used for research purposes.</li>
+      </ul>
+      <p class="muted">Click “Begin” when you are ready.</p>
+    </div>`,
+  choices:["Begin"]
 });
 
-// 2) Preload all candidate images; show progress; continue after errors
-const failed = [];
+/* ---------------- PRELOAD ---------------- */
 timeline.push({
   type: jsPsychPreload,
   images: questionBanks.flat(),
-  show_progress_bar: true,
-  message: 'Preloading images…',
-  continue_after_error: true,
-  error_message: '',
-  on_error: file => failed.push(file)
+  show_progress_bar:true,
+  message:'Preloading images…',
+  continue_after_error:true
 });
 
-// 3) Warn if any images failed (still continue)
-timeline.push({
-  type: jsPsychHtmlButtonResponse,
-  stimulus: () => {
-    if (!failed.length) {
-      return `<p>All stimuli preloaded successfully.</p>`;
-    }
-    const list = failed.map(f => `<li>${f}</li>`).join('');
-    return `<div class="warn">
-      <p><b>Note:</b> ${failed.length} file(s) were missing. We’ll continue anyway.</p>
-      <details><summary>Show missing file paths</summary><ul>${list}</ul></details>
-    </div>`;
-  },
-  choices: ["Start questions"]
-});
-
-// 4) Build the 10 trials (1-of-8 each)
-questionBanks.forEach((bank, i) => {
-  const chosen = pick(bank);
+/* ---------------- QUESTIONS ---------------- */
+questionBanks.forEach((bank,i)=>{
+  const qnum=i+1;
+  const chosen=pick(bank);
   timeline.push({
     type: jsPsychHtmlButtonResponse,
     stimulus: `
       <div style="text-align:center">
-        <h3>Question ${i+1} / 10</h3>
-        <img class="stim" src="${chosen}" alt="stimulus">
-        <p class="muted" style="margin-top:.75rem">Answer the question about this figure:</p>
+        <h3>Question ${qnum} / 10</h3>
+        <img class="stim" src="${chosen}" alt="stimulus ${qnum}">
+        <p class="muted">Please select the option that best answers the question about this figure.</p>
       </div>`,
-    choices: ANSWER_CHOICES,
-    data: {question_id:`Q${i+1}`, image: chosen}
-  });
-});
-
-// 5) Exit fullscreen
-timeline.push({
-  type: jsPsychFullscreen,
-  fullscreen_mode: false,
-  button_label: "Finish"
-});
-
-// Go!
-jsPsych.run(timeline);
-</script>
-</body>
-</html>
+    choices: ANSWER_CHOICES[qnum] || ["Option 1","Option 2"],
+    data:{question_id:`Q${qnum}`,image:chosen}_
