@@ -26,7 +26,7 @@
 const WEBHOOK = "https://script.google.com/macros/s/AKfycbxl1eYqL2InnaU_iUWJINyGgHt_LZjp6-PcqROv_jWSBa2Ml4tEmwS3oGWt693-Tss_hQ/exec";
 
 // Answer buttons shown for every question (adjust labels as needed)
-const ANSWER_CHOICES = ["Option A","Option B","Option C","Option D"];
+const ANSWER_CHOICES = ["Option A","Option B","Option C"];
 
 // Build 10 banks of 8 image paths each.
 // You currently have only q1_*; leave q2..q10 as-is and add files later.
@@ -87,7 +87,7 @@ const jsPsych = initJsPsych({
     const result = await postRows(rows);
 
     // Always give a local CSV backup
-    jsPsych.data.get().localSave('csv', `responses_${PID}.csv`);
+    //jsPsych.data.get().localSave('csv', `responses_${PID}.csv`);
 
     // Show status
     document.body.innerHTML =
