@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.9</title>
+  <title>Data Visualization Survey 1.0.2</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -142,7 +142,7 @@ const jsPsych = initJsPsych({
 
     const result = await postRows(qrows);
     document.body.innerHTML = result.ok
-      ? `<div class="center" style="padding:2rem"><h2>✅ Thank you!</h2><p>Your responses have been saved (${result.mode}).</p></div>`
+      ? `<div class="center" style="padding:2rem"><h2>✅ Thank you!</h2><p>Your responses have been saved.</p></div>`
       : `<div class="center" style="padding:2rem"><h2>⚠️ Upload failed.</h2><p>${result.error||''}</p></div>`;
   }
 });
