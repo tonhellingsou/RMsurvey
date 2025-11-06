@@ -212,23 +212,42 @@ questionBanks.forEach((bank, i) => {
     `,
     on_load: () => {
       const root = jsPsych.getDisplayElement();
+      const img  = root.querySelector('img.stim');
       const radios = root.querySelectorAll('input[type=radio][name=answer]');
-      const t0 = performance.now();
+    
+      // Disable radios until the image is fully decoded and painted.
+      radios.forEach(r => r.disabled = true);
+    
+      let t0 = 0;
+      const start = () => {
+        // mark the real start time only now (image visible)
+        t0 = performance.now();
+        radios.forEach(r => r.disabled = false);
+      };
+    
+      // Start timing after the browser confirms pixels are ready
+      if (img && typeof img.decode === 'function') {
+        img.decode().catch(()=>{}).finally(start);
+      } else {
+        // Fallback if decode() isn’t supported
+        if (img && !img.complete) img.addEventListener('load', start, { once:true });
+        else start();
+      }
+    
+      // One-click advance with correct RT
       radios.forEach(r => {
         r.addEventListener('change', () => {
           const rt = Math.round(performance.now() - t0);
-          const val = r.value;
-          // immediately finish the trial and store our data
           jsPsych.finishTrial({
             kind: 'question',
             participant_id: PID,
             question_id: `Q${qnum}`,
             image: chosen,
-            response: val,
+            response: r.value,
             rt: rt,
             choice_order: shuffled.join(' | ')
           });
-        }, { once: true });
+        }, { once:true });
       });
     }
   });
