@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.8</title>
+  <title>Data Visualization Survey 1.9</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -48,6 +48,29 @@
     .center { text-align:center; }
     details summary { cursor:pointer; }
     .bi { vertical-align:-0.1em; }
+
+
+    .field-card {
+      background:#fff;
+      border:1px solid #d8dbe0;
+      border-radius:12px;
+      padding:14px 16px;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
+    }
+    .modern-select {
+      width:100%;
+      padding:.55rem .75rem;
+      font-size:1rem;
+      border:1px solid #cbd0d8;
+      border-radius:8px;
+      background:#fff;
+      transition:border-color .2s, box-shadow .2s;
+    }
+    .modern-select:focus {
+      outline:none;
+      border-color:#2563eb;
+      box-shadow:0 0 0 2px rgba(37,99,235,.2);
+    }
   </style>
 </head>
 <body>
@@ -211,119 +234,103 @@ questionBanks.forEach((bank, i) => {
   });
 });
 
-/* ---------------- DEMOGRAPHICS (modern cards, includes gender & industry list) ---------------- */
+/* ---------------- DEMOGRAPHICS (modern dropdowns) ---------------- */
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
   choices: "NO_KEYS",
   stimulus: `
-    <div style="max-width:900px;margin:0 auto">
+    <div style="max-width:600px;margin:0 auto;">
       <h3 class="center">Almost done — a few background questions</h3>
 
-      <div class="form-grid">
-        <!-- Age group -->
-        <div class="field-card">
-          <h4>Age group</h4>
-          <div class="chips" id="age-chips">
-            ${["18–24","25–34","35–44","45–54","55–64","65+"].map(a => `
-              <label class="chip"><input type="radio" name="age" value="${a}">${a}</label>`).join('')}
-          </div>
-        </div>
-
-        <!-- Highest education -->
-        <div class="field-card">
-          <h4>Highest education</h4>
-          <div class="chips" id="edu-chips">
-            ${["High school","Bachelor","Master","PhD","Other"].map(a => `
-              <label class="chip"><input type="radio" name="education" value="${a}">${a}</label>`).join('')}
-          </div>
-        </div>
-
-        <!-- Gender -->
-        <div class="field-card">
-          <h4>Gender</h4>
-          <div class="chips" id="gender-chips">
-            ${["Male","Female","Other","Prefer not to say"].map(a => `
-              <label class="chip"><input type="radio" name="gender" value="${a}">${a}</label>`).join('')}
-          </div>
-        </div>
-
-        <!-- Data literacy -->
-        <div class="field-card">
-          <h4>Self-reported data literacy (1–5)</h4>
-          <div>
-            <input type="range" id="lit" min="1" max="5" step="1" value="3"
-              oninput="document.getElementById('litval').textContent=this.value">
-            <span id="litval">3</span>
-          </div>
-        </div>
-
-        <!-- Industry (full row) -->
-        <div class="field-card full">
-          <h4>Industry of work</h4>
-          <div class="options" id="industry-grid" style="grid-template-columns:repeat(auto-fit,minmax(260px,1fr));">
-            ${[
-              "Administratieve beroepen",
-              "Agrarisch en groen",
-              "Autobranche",
-              "Bouw",
-              "Cultuur, sport en recreatie",
-              "Detail- en groothandel",
-              "Financiële dienstverlening",
-              "Horeca",
-              "ICT-beroepen",
-              "Industrie",
-              "Klimaat",
-              "Onderwijs",
-              "Overheid",
-              "Sociaal werk, jeugdzorg en kinderopvang",
-              "Transport en logistiek",
-              "Zakelijke dienstverlening",
-              "Zorg"
-            ].map(label => `
-              <label class="option-card">
-                <input type="radio" name="industry" value="${label}">
-                <span>${label}</span>
-              </label>`).join('')}
-          </div>
-        </div>
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Age group</label>
+        <select name="age" id="age" class="modern-select">
+          <option value="">Select…</option>
+          <option>18–24</option>
+          <option>25–34</option>
+          <option>35–44</option>
+          <option>45–54</option>
+          <option>55–64</option>
+          <option>65+</option>
+        </select>
       </div>
 
-      <div class="center" style="margin-top:1.2rem">
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Highest education</label>
+        <select name="education" id="education" class="modern-select">
+          <option value="">Select…</option>
+          <option>High school</option>
+          <option>Bachelor</option>
+          <option>Master</option>
+          <option>PhD</option>
+          <option>Other</option>
+        </select>
+      </div>
+
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Gender</label>
+        <select name="gender" id="gender" class="modern-select">
+          <option value="">Select…</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+          <option>Prefer not to say</option>
+        </select>
+      </div>
+
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Self-reported data literacy (1–5)</label>
+        <input type="range" id="literacy" min="1" max="5" step="1" value="3"
+          oninput="document.getElementById('litval').textContent=this.value"
+          style="width:100%;">
+        <div class="center muted">Value: <span id="litval">3</span></div>
+      </div>
+
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Industry of work</label>
+        <select name="industry" id="industry" class="modern-select">
+          <option value="">Select…</option>
+          <option>Administratieve beroepen</option>
+          <option>Agrarisch en groen</option>
+          <option>Autobranche</option>
+          <option>Bouw</option>
+          <option>Cultuur, sport en recreatie</option>
+          <option>Detail- en groothandel</option>
+          <option>Financiële dienstverlening</option>
+          <option>Horeca</option>
+          <option>ICT-beroepen</option>
+          <option>Industrie</option>
+          <option>Klimaat</option>
+          <option>Onderwijs</option>
+          <option>Overheid</option>
+          <option>Sociaal werk, jeugdzorg en kinderopvang</option>
+          <option>Transport en logistiek</option>
+          <option>Zakelijke dienstverlening</option>
+          <option>Zorg</option>
+        </select>
+      </div>
+
+      <div class="center" style="margin-top:1.5rem;">
         <button id="submit-demo" class="btn-primary">Submit</button>
       </div>
     </div>
   `,
   on_load: () => {
-    // toggle chip .selected state
-    document.querySelectorAll('.chip').forEach(ch => {
-      ch.addEventListener('click', () => {
-        const name = ch.querySelector('input').name;
-        document.querySelectorAll(`.chip input[name="${name}"]`).forEach(i => i.parentElement.classList.remove('selected'));
-        ch.classList.add('selected');
-      });
-    });
-
     document.getElementById('submit-demo').addEventListener('click', () => {
-      // collect values
-      const getVal = (name) => {
-        const el = document.querySelector(`input[name="${name}"]:checked`);
-        return el ? el.value : "";
-      };
+      const getVal = id => document.getElementById(id).value.trim();
       const payload = {
         age: getVal('age'),
         education: getVal('education'),
         gender: getVal('gender'),
-        literacy: document.getElementById('lit').value,
+        literacy: getVal('literacy'),
         industry: getVal('industry')
       };
-
-      // (optional) simple required check: require age, education, gender, industry
+      // simple validation
       const missing = ['age','education','gender','industry'].filter(k => !payload[k]);
       if (missing.length) {
-        alert("Please select: " + missing.join(", "));
+        alert("Please fill in: " + missing.join(", "));
         return;
       }
-
       jsPsych.finishTrial({ kind:'demographics', response: payload });
     });
   }
