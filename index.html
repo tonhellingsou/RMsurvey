@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.0.3</title>
+  <title>Data Visualization Survey 1.1.3</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -131,7 +131,9 @@ const jsPsych = initJsPsych({
     </div>`;
 
     // Collect question rows (we stored them ourselves on finishTrial)
-    const qrows = jsPsych.data.get().filter({kind:'question'}).values();
+    const qrows = jsPsych.data.get().filterCustom(t => 
+      t.kind === 'pretest' || t.kind === 'question'
+    ).values();
 
     // Demographics row
     const d = jsPsych.data.get().filter({kind:'demographics'}).values()[0];
@@ -209,32 +211,32 @@ const PRETEST = [
   {
     id: "K1",
     q: "A bar chart compares the number of students in different classes. What does each bar’s height represent?",
-    choices: ["The number of students ✅", "The name of the class", "The color used for that class", "The average grade"],
-    correct: "The number of students ✅"
+    choices: ["The number of students", "The name of the class", "The color used for that class", "The average grade"],
+    correct: "The number of students"
   },
   {
     id: "K2",
     q: "In a bar chart showing average monthly rainfall, what does the label on the x-axis usually represent?",
-    choices: ["The amount of rainfall", "The months of the year ✅", "The type of weather", "The average temperature"],
-    correct: "The months of the year ✅"
+    choices: ["The amount of rainfall", "The months of the year", "The type of weather", "The average temperature"],
+    correct: "The months of the year"
   },
   {
     id: "K3",
     q: "When comparing two box plots, the plot with a longer box shows:",
-    choices: ["Higher average values", "Greater variability ✅", "Fewer data points", "No outliers"],
-    correct: "Greater variability ✅"
+    choices: ["Higher average values", "Greater variability", "Fewer data points", "No outliers"],
+    correct: "Greater variability"
   },
   {
     id: "K4",
     q: "A scatter plot shows that as temperature increases, ice cream sales also increase. What kind of relationship does this suggest?",
-    choices: ["Negative correlation", "Positive correlation ✅", "No correlation", "Random variation"],
-    correct: "Positive correlation ✅"
+    choices: ["Negative correlation", "Positive correlation", "No correlation", "Random variation"],
+    correct: "Positive correlation"
   },
   {
     id: "K5",
     q: "A bar chart starts its y-axis at 40 instead of 0. What effect might this have?",
-    choices: ["It makes differences appear larger than they are ✅", "It makes differences appear smaller", "It has no effect", "It improves readability"],
-    correct: "It makes differences appear larger than they are ✅"
+    choices: ["It makes differences appear larger than they are", "It makes differences appear smaller", "It has no effect", "It improves readability"],
+    correct: "It makes differences appear larger than they are"
   }
 ];
 
