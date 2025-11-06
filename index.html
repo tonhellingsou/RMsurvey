@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Data Visualization Survey 1.6</title>
+  <title>Data Visualization Survey 1.7</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -97,6 +97,17 @@ const ANSWER_CHOICES = {
   10:["Under 10 seconds","10–20 seconds","More than 20 seconds"]
 };
 
+// shuffle answers to randomize order
+function shuffle(array){
+  // Fisher–Yates
+  const a = array.slice();
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+  
 // image banks
 function bank(n){
   return [
@@ -205,7 +216,10 @@ timeline.push({
 questionBanks.forEach((bank, i) => {
   const qnum = i + 1;
   const chosen = pick(bank);
-  const choices = ANSWER_CHOICES[qnum] || ["Option 1", "Option 2"];
+  const choices = ANSWER_CHOICES[qnum] || ["Option 1","Option 2"];
+
+  // Randomize the visible order
+  const shuffled = shuffle(choices);
 
   timeline.push({
     type: jsPsychSurveyHtmlForm,
@@ -217,22 +231,37 @@ questionBanks.forEach((bank, i) => {
       </div>`,
     html: `
       <div style="text-align:left;max-width:600px;margin:1rem auto 0;">
-        ${choices.map(ch => `
-          <label style="display:block;margin:.5em 0;padding:.3em .5em;background:#fff;border-radius:8px;cursor:pointer;border:1px solid #ccc;">
+        ${shuffled.map(ch => `
+          <label style="display:block;margin:.5em 0;padding:.4em .6em;background:#fff;border-radius:10px;cursor:pointer;border:1px solid #d1d5db;">
             <input type="radio" name="answer" value="${ch}" style="margin-right:.5em;">
             ${ch}
-          </label>`).join("")}
+          </label>
+        `).join("")}
       </div>`,
-    button_label: "Next", // won’t be visible; auto-advance below
+    button_label: "Next", // we auto-submit on change, so this is a fallback
     on_load: () => {
-      // find all radio buttons and auto-advance when any is clicked
-      document.querySelectorAll('input[type=radio][name=response]').forEach(el => {
-        el.addEventListener('change', () => {
-          document.querySelector('form.jspsych-survey-html-form').dispatchEvent(new Event('submit'));
-        });
+      // Scope to the current trial's form only
+      const root = jsPsych.getDisplayElement();
+      const form = root.querySelector('form.jspsych-survey-html-form');
+
+      // Auto-advance when a radio is picked
+      root.querySelectorAll('input[type=radio][name=answer]').forEach(input => {
+        input.addEventListener('change', () => {
+          // give the browser a tick to register the checked value
+          setTimeout(() => {
+            if (form && typeof form.requestSubmit === 'function') form.requestSubmit();
+            else if (form) form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+          }, 0);
+        }, { once: true });
       });
     },
-    data: { kind: 'question', question_id:`Q${qnum}`, image: chosen },
+    data: {
+      kind: 'question',
+      question_id: `Q${qnum}`,
+      image: chosen,
+      // (optional) store the randomized order for auditing/analysis
+      choice_order: shuffled.join(' | ')
+    }
   });
 });
 
