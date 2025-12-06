@@ -127,7 +127,7 @@ const jsPsych = initJsPsych({
   on_finish: async () => {
     document.body.innerHTML = `
       <div style="text-align:center;padding:3rem">
-        <h2>Answers are being saved. Do not close this window yet.</h2>
+        <h2>Je antwoorden worden opgeslagen. Sluit dit venster nog niet.</h2>
       </div>`;
   
     // Pull both pretest and main survey trials
@@ -333,11 +333,11 @@ timeline.push({
   choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:center;max-width:600px;margin:auto;">
-      <h2>Main survey is starting</h2>
-      <p>Next, you'll answer questions about <b>10 data visualizations</b>.</p>
-      <p>Each one will appear on screen, and you’ll choose the best answer as quickly and accurately as possible.</p>
-      <p>Click below when you’re ready to begin the main survey.</p>
-      <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start Survey</button>
+      <h2>De hoofdenquête begint</h2>
+      <p>Hierna beantwoord je vragen over <b>10 datavisualisaties</b>.</p>
+      <p>Elke visualisatie verschijnt op het scherm, en je kiest zo snel en nauwkeurig mogelijk het beste antwoord.</p>
+      <p>Klik hieronder wanneer je klaar bent om met de hoofdenquête te beginnen.</p>
+      <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start enquête</button>
     </div>
   `,
   on_load: () => {
@@ -359,7 +359,7 @@ questionBanks.forEach((bank, i) => {
       <div style="text-align:center">
         <h3>Question ${qnum} / 10</h3>
         <img class="stim" src="${chosen}" alt="stimulus ${qnum}">
-        <p class="muted">Select the option that best answers the question.</p>
+        <p class="muted">Welke bewering is juist?</p>
       </div>
       <div class="options" id="optwrap">
         ${shuffled.map(ch => `
