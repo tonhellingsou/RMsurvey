@@ -158,8 +158,8 @@ const jsPsych = initJsPsych({
   
     const result = await postRows(rows);
     document.body.innerHTML = result.ok
-      ? `<div style="padding:2rem;text-align:center"><h2>✅ Thank you!</h2><p>Your responses have been saved.</p></div>`
-      : `<div style="padding:2rem;text-align:center"><h2>⚠️ Upload failed.</h2><p>${result.error||''}</p></div>`;
+      ? `<div style="padding:2rem;text-align:center"><h2>✅ Dankjewel!</h2><p>Je antwoorden zijn opgeslagen.</p></div>`
+      : `<div style="padding:2rem;text-align:center"><h2>⚠️ Upload niet gelukt.</h2><p>${result.error||''}</p></div>`;
   }
 });
 
