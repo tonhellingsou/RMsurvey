@@ -171,48 +171,48 @@ timeline.push({
   choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:left;max-width:720px;margin:0 auto">
-      <h1 style="margin:0 0 .5rem 0;">Visual Design & Interpretation Speed Study</h1>
-      <p>Welcome! Before the main survey, you will first complete a short <b>5-question pre-test</b> about basic data understanding.</p>
-      <p>This helps us get an idea of your prior knowledge about data and visualizations. It only takes about a minute.</p>
+      <h1 style="margin:0 0 .5rem 0;">Onderzoek naar Visueel Ontwerp & Interpretatiesnelheid</h1>
+      <p>Welkom! Voorafgaand aan de hoofdenquête maak je eerst een korte <b>pretest van 5 vragen</b> over basiskennis van data.</p>
+      <p>Dit helpt ons een beeld te krijgen van je voorkennis over data en visualisaties. Het duurt slechts ongeveer één minuut.</p>
       <ul style="list-style:none;padding:0;margin:1rem 0;">
         <li style="margin:.5em 0;"><i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
-            <b>5 pre-test questions</b> to start, followed by the main survey of <b>10 images</b>.</li>
+            <b>5 pretestvragen</b> om te starten, gevolgd door de hoofdenquête met <b>10 afbeeldingen</b>.</li>
         <li style="margin:.5em 0;"><i class="bi bi-lightning-charge" style="color:#eab308;margin-right:.5em;"></i>
-            Your <b>reaction time</b> will be measured for each answer.</li>
+            Je <b>reactietijd</b> wordt gemeten voor elk antwoord.</li>
         <li style="margin:.5em 0;"><i class="bi bi-hourglass-split" style="color:#f97316;margin-right:.5em;"></i>
-            The study is <b>time-bound</b> and can’t be paused once started.</li>
+            Het onderzoek is <b>tijdsgebonden</b> en kan niet worden gepauzeerd zodra het is gestart.</li>
         <li style="margin:.5em 0;"><i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
-            Your results are <b>confidential</b> and used only for research.</li>
+            Je resultaten zijn <b>vertrouwelijk</b> en worden alleen voor onderzoek gebruikt.</li>
       </ul>
       <div class="center" style="margin-top:1rem">
-        <button id="begin" class="btn-primary">Begin</button>
+        <button id="begin" class="btn-primary">Beginnen</button>
       </div>
-      <p class="muted center" style="margin-top:.5rem">Participant: <b>${PID}</b></p>
+      <p class="muted center" style="margin-top:.5rem">Deelnemer: <b>${PID}</b></p>
     </div>`,
   on_load: () => {
     document.getElementById('begin').addEventListener('click', () => jsPsych.finishTrial());
   }
 });
 
-/* ---------------- PRELOAD (optional, continue after errors) ---------------- */
+/* ---------------- PRELOAD (optioneel, doorgaan na fouten) ---------------- */
 timeline.push({
   type: jsPsychPreload,
   images: questionBanks.flat(),
   show_progress_bar:true,
-  message:'Preloading images…',
+  message:'Afbeeldingen worden geladen…',
   continue_after_error:true
 });
 
-/* ---------------- READY SCREEN: Pre-test ---------------- */
+/* ---------------- READY SCREEN: Pretest ---------------- */
 timeline.push({
   type: jsPsychHtmlKeyboardResponse,
   choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:center;max-width:600px;margin:auto;">
-      <h2>Pre-test is starting</h2>
-      <p>This short pre-test will check your basic knowledge of data and visualizations.</p>
-      <p>Click the button below when you're ready to begin.</p>
-      <button id="start-pretest" class="btn-primary" style="margin-top:1rem;">Start Pre-test</button>
+      <h2>De pretest begint</h2>
+      <p>Deze korte pretest controleert je basiskennis van data en visualisaties.</p>
+      <p>Klik op de knop hieronder wanneer je klaar bent om te starten.</p>
+      <button id="start-pretest" class="btn-primary" style="margin-top:1rem;">Start pretest</button>
     </div>
   `,
   on_load: () => {
@@ -224,35 +224,61 @@ timeline.push({
 const PRETEST = [
   {
     id: "K1",
-    q: "A bar chart compares the number of students in different classes. What does each bar’s height represent?",
-    choices: ["The number of students ✅", "The name of the class", "The color used for that class", "The average grade"],
-    correct: "The number of students ✅"
+    q: "Een staafdiagram vergelijkt het aantal leerlingen in verschillende klassen. Wat vertegenwoordigt de hoogte van elke staaf?",
+    choices: [
+      "Het aantal leerlingen ✅",
+      "De naam van de klas",
+      "De kleur die voor die klas wordt gebruikt",
+      "Het gemiddelde cijfer"
+    ],
+    correct: "Het aantal leerlingen ✅"
   },
   {
     id: "K2",
-    q: "In a bar chart showing average monthly rainfall, what does the label on the x-axis usually represent?",
-    choices: ["The amount of rainfall", "The months of the year ✅", "The type of weather", "The average temperature"],
-    correct: "The months of the year ✅"
+    q: "In een staafdiagram dat de gemiddelde maandelijkse neerslag toont, wat geeft de label op de x-as meestal aan?",
+    choices: [
+      "De hoeveelheid neerslag",
+      "De maanden van het jaar ✅",
+      "Het weertype",
+      "De gemiddelde temperatuur"
+    ],
+    correct: "De maanden van het jaar ✅"
   },
   {
     id: "K3",
-    q: "When comparing two box plots, the plot with a longer box shows:",
-    choices: ["Higher average values", "Greater variability ✅", "Fewer data points", "No outliers"],
-    correct: "Greater variability ✅"
+    q: "Bij het vergelijken van twee boxplots laat de boxplot met een langere box het volgende zien:",
+    choices: [
+      "Hogere gemiddelde waarden",
+      "Grotere variabiliteit ✅",
+      "Minder datapunten",
+      "Geen uitschieters"
+    ],
+    correct: "Grotere variabiliteit ✅"
   },
   {
     id: "K4",
-    q: "A scatter plot shows that as temperature increases, ice cream sales also increase. What kind of relationship does this suggest?",
-    choices: ["Negative correlation", "Positive correlation ✅", "No correlation", "Random variation"],
-    correct: "Positive correlation ✅"
+    q: "Een scatterplot laat zien dat naarmate de temperatuur stijgt, de ijsverkoop ook toeneemt. Wat voor soort relatie suggereert dit?",
+    choices: [
+      "Negatieve correlatie",
+      "Positieve correlatie ✅",
+      "Geen correlatie",
+      "Willekeurige variatie"
+    ],
+    correct: "Positieve correlatie ✅"
   },
   {
     id: "K5",
-    q: "A bar chart starts its y-axis at 40 instead of 0. What effect might this have?",
-    choices: ["It makes differences appear larger than they are ✅", "It makes differences appear smaller", "It has no effect", "It improves readability"],
-    correct: "It makes differences appear larger than they are ✅"
+    q: "Een staafdiagram begint de y-as bij 40 in plaats van bij 0. Welk effect kan dit hebben?",
+    choices: [
+      "Het laat verschillen groter lijken dan ze zijn ✅",
+      "Het laat verschillen kleiner lijken",
+      "Het heeft geen effect",
+      "Het verbetert de leesbaarheid"
+    ],
+    correct: "Het laat verschillen groter lijken dan ze zijn ✅"
   }
 ];
+
 
 /* ---------------- PRETEST: 5 Data Knowledge Questions (fixed timing & PID) ---------------- */
 PRETEST.forEach((item, idx) => {
@@ -394,78 +420,79 @@ timeline.push({
     <div style="max-width:600px;margin:0 auto;">
       <h3 class="center">Almost done — a few background questions</h3>
 
-      <div class="field-card" style="margin-top:1rem;">
-        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Age group</label>
-        <select name="age" id="age" class="modern-select">
-          <option value="">Select…</option>
-          <option>18–24</option>
-          <option>25–34</option>
-          <option>35–44</option>
-          <option>45–54</option>
-          <option>55–64</option>
-          <option>65+</option>
-        </select>
-      </div>
+  <div class="field-card" style="margin-top:1rem;">
+    <label style="display:block;margin-bottom:.3rem;font-weight:600;">Leeftijdsgroep</label>
+    <select name="age" id="age" class="modern-select">
+      <option value="">Selecteer…</option>
+      <option>18–24</option>
+      <option>25–34</option>
+      <option>35–44</option>
+      <option>45–54</option>
+      <option>55–64</option>
+      <option>65+</option>
+    </select>
+  </div>
+  
+  <div class="field-card" style="margin-top:1rem;">
+    <label style="display:block;margin-bottom:.3rem;font-weight:600;">Hoogst voltooide opleiding</label>
+    <select name="education" id="education" class="modern-select">
+      <option value="">Selecteer…</option>
+      <option>Middelbare school</option>
+      <option>Bachelor</option>
+      <option>Master</option>
+      <option>Promotie / PhD</option>
+      <option>Anders</option>
+    </select>
+  </div>
+  
+  <div class="field-card" style="margin-top:1rem;">
+    <label style="display:block;margin-bottom:.3rem;font-weight:600;">Geslacht</label>
+    <select name="gender" id="gender" class="modern-select">
+      <option value="">Selecteer…</option>
+      <option>Man</option>
+      <option>Vrouw</option>
+      <option>Anders</option>
+      <option>Zeg ik liever niet</option>
+    </select>
+  </div>
+  
+  <div class="field-card" style="margin-top:1rem;">
+    <label style="display:block;margin-bottom:.3rem;font-weight:600;">Zelfgerapporteerde datageletterdheid (1–5)</label>
+    <input 
+      type="range" id="literacy" min="1" max="5" step="1" value="3"
+      oninput="document.getElementById('litval').textContent=this.value"
+      style="width:100%;">
+    <div class="center muted">Waarde: <span id="litval">3</span></div>
+  </div>
+  
+  <div class="field-card" style="margin-top:1rem;">
+    <label style="display:block;margin-bottom:.3rem;font-weight:600;">Werksector</label>
+    <select name="industry" id="industry" class="modern-select">
+      <option value="">Selecteer…</option>
+      <option>Administratieve beroepen</option>
+      <option>Agrarisch en groen</option>
+      <option>Autobranche</option>
+      <option>Bouw</option>
+      <option>Cultuur, sport en recreatie</option>
+      <option>Detail- en groothandel</option>
+      <option>Financiële dienstverlening</option>
+      <option>Horeca</option>
+      <option>ICT-beroepen</option>
+      <option>Industrie</option>
+      <option>Klimaat</option>
+      <option>Onderwijs</option>
+      <option>Overheid</option>
+      <option>Sociaal werk, jeugdzorg en kinderopvang</option>
+      <option>Transport en logistiek</option>
+      <option>Zakelijke dienstverlening</option>
+      <option>Zorg</option>
+    </select>
+  </div>
+  
+  <div class="center" style="margin-top:1.5rem;">
+    <button id="submit-demo" class="btn-primary">Verzenden</button>
+  </div>
 
-      <div class="field-card" style="margin-top:1rem;">
-        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Highest education</label>
-        <select name="education" id="education" class="modern-select">
-          <option value="">Select…</option>
-          <option>High school</option>
-          <option>Bachelor</option>
-          <option>Master</option>
-          <option>PhD</option>
-          <option>Other</option>
-        </select>
-      </div>
-
-      <div class="field-card" style="margin-top:1rem;">
-        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Gender</label>
-        <select name="gender" id="gender" class="modern-select">
-          <option value="">Select…</option>
-          <option>Male</option>
-          <option>Female</option>
-          <option>Other</option>
-          <option>Prefer not to say</option>
-        </select>
-      </div>
-
-      <div class="field-card" style="margin-top:1rem;">
-        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Self-reported data literacy (1–5)</label>
-        <input type="range" id="literacy" min="1" max="5" step="1" value="3"
-          oninput="document.getElementById('litval').textContent=this.value"
-          style="width:100%;">
-        <div class="center muted">Value: <span id="litval">3</span></div>
-      </div>
-
-      <div class="field-card" style="margin-top:1rem;">
-        <label style="display:block;margin-bottom:.3rem;font-weight:600;">Industry of work</label>
-        <select name="industry" id="industry" class="modern-select">
-          <option value="">Select…</option>
-          <option>Administratieve beroepen</option>
-          <option>Agrarisch en groen</option>
-          <option>Autobranche</option>
-          <option>Bouw</option>
-          <option>Cultuur, sport en recreatie</option>
-          <option>Detail- en groothandel</option>
-          <option>Financiële dienstverlening</option>
-          <option>Horeca</option>
-          <option>ICT-beroepen</option>
-          <option>Industrie</option>
-          <option>Klimaat</option>
-          <option>Onderwijs</option>
-          <option>Overheid</option>
-          <option>Sociaal werk, jeugdzorg en kinderopvang</option>
-          <option>Transport en logistiek</option>
-          <option>Zakelijke dienstverlening</option>
-          <option>Zorg</option>
-        </select>
-      </div>
-
-      <div class="center" style="margin-top:1.5rem;">
-        <button id="submit-demo" class="btn-primary">Submit</button>
-      </div>
-    </div>
   `,
   on_load: () => {
     document.getElementById('submit-demo').addEventListener('click', () => {
