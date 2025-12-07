@@ -90,7 +90,7 @@ const ANSWER_CHOICES = {
   4: ["Zes van de top tien warmste jaren vonden plaats in het decennium 2015-2024.","2019 was het eerste jaar waarin de gemiddelde temperatuur boven de 11 graden uitkwam."],
   5: ["In het huidige decennium is een toename van het aantal uren zonneschijn per dag waargenomen.","In de eerste helft van de vorige eeuw was er ongeveer net zo veel zonneschijn per dag als in 2000-2019."],
   6: ["Studenten zijn het meest eens met het statement dat de opleidingskwaliteit verhoogd is.","Studenten zijn het meer oneens dan eens met het statement dat ze informatie goed kunnen reproduceren."],
-  7: ["Blue palette","Orange palette","Mixed colors","Grayscale"],
+  7: ["Op het eerste gezicht lijken landen met hogere BBP per capita een hogere democratie-index te hebben.","De meeste landen zitten rond de $1K BBP en democratie-index 4."],
   8: ["Easily readable","Hard to read","Confusing","Visually pleasing"],
   9: ["In 2023 wordt meer dan de helft van de elektrische auto's in Azië verkocht.","In Europa werden in 2020 minder elektrische auto's verkocht dan in Azië."],
   10:["Al heeft Azië de grootste elektrische autoverkoop, Zuid-Amerika toonde in 2023 relatief de grootste groei.","Noord-Amerika groeide in 2023 qua verkoop van elektrische auto's relatief minder snel dan Europa."]
@@ -315,7 +315,7 @@ PRETEST.forEach((item, idx) => {
     choices: "NO_KEYS",
     stimulus: `
       <div style="text-align:left;max-width:700px;margin:auto;">
-        <h3>Pre-test question ${idx + 1} / ${PRETEST.length}</h3>
+        <h3>Pre-testvraag ${idx + 1} / ${PRETEST.length}</h3>
         <p style="margin:1em 0;font-size:1.05rem;">${item.q}</p>
         <div class="options">
           ${shuffled.map(opt => `
@@ -383,7 +383,7 @@ questionBanks.forEach((bank, i) => {
     choices: "NO_KEYS", // we’ll finish the trial ourselves when a radio is clicked
     stimulus: `
       <div style="text-align:center">
-        <h3>Question ${qnum} / 10</h3>
+        <h3>Vraag ${qnum} / 10</h3>
         <img class="stim" src="${chosen}" alt="stimulus ${qnum}">
         <p class="muted">Welke bewering is juist?</p>
       </div>
