@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Onderzoek datavisualisatie</title>
+  <title>Onderzoek datavisualisatie 1.0</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -75,13 +75,18 @@
     
     .feedback-card input[type="text"],
     .feedback-card textarea {
-      width:100%;
+      box-sizing:border-box;
       font-size:1rem;
+    
+      /* IMPORTANT PART: leave some white space inside the card */
+      width: calc(100% - 24px);   /* card width minus left+right margin */
+      margin:8px 12px 0 12px;     /* white border left & right */
+    
       padding:10px 12px;
       border:none;
       outline:none;
       resize:vertical;
-      background:#f9fafb;      /* subtle field background */
+      background:#f9fafb;
       border-radius:8px;
     }
     
