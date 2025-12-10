@@ -169,6 +169,19 @@ const jsPsych = initJsPsych({
         rt: ''
       });
     }
+
+    // optional name & comments
+    const fb = jsPsych.data.get().filter({ kind: 'feedback' }).values()[0];
+    if (fb) {
+      rows.push({
+        participant_id: PID,
+        trial: 'feedback',
+        question_id: 'feedback',
+        image: '',
+        response: JSON.stringify(fb.response || {}),
+        rt: ''
+      });
+    }
   
     const result = await postRows(rows);
     document.body.innerHTML = result.ok
@@ -249,8 +262,9 @@ timeline.push({
   choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:center;max-width:600px;margin:auto;">
-      <h2>De pretest begint</h2>
-      <p>Deze korte pretest controleert je basiskennis van data en visualisaties.</p>
+      <h2>De pre-test begint</h2>
+      <p>Deze korte pre-test controleert je basiskennis van data en visualisaties.</p>>
+      <p>De vragen hebben een wisselende moeilijkheidsgraad en het is geen probleem indien ze niet allemaal juist beantwoord worden.</p>
       <p>Klik op de knop hieronder wanneer je klaar bent om te starten.</p>
       <button id="start-pretest" class="btn-primary" style="margin-top:1rem;">Start pretest</button>
     </div>
@@ -373,11 +387,13 @@ timeline.push({
   choices: "NO_KEYS",
   stimulus: `
     <div style="text-align:center;max-width:600px;margin:auto;">
-      <h2>De hoofdenquête begint</h2>
-      <p>Hierna beantwoord je vragen over <b>10 datavisualisaties</b>.</p>
+      <h2>Het hoofdonderzoek begint</h2>
+      <p>Hierin beantwoord je vragen over <b>10 datavisualisaties</b>.</p>
       <p>Elke visualisatie verschijnt op het scherm, en je kiest zo snel en nauwkeurig mogelijk het beste antwoord.</p>
-      <p>Klik hieronder wanneer je klaar bent om met de hoofdenquête te beginnen.</p>
-      <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start enquête</button>
+      <p>Er zitten goede en slechte visualisaties tussen, dus soms wordt het moeilijk gemaakt het juiste antwoord te vinden. Dat is intentioneel en er wordt geen beoordeling van je data-interpretatievaardigheden gemaakt.</p>
+      <p>Klik hieronder wanneer je klaar bent om met het onderzoek te beginnen.</p>
+      <p>Herinnering: Je kunt het onderzoek niet pauzeren.</p>
+      <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start onderzoek</button>
     </div>
   `,
   on_load: () => {
@@ -554,6 +570,59 @@ timeline.push({
     });
   }
 });
+
+/* ---------------- OPTIONAL NAME & COMMENTS ---------------- */
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: `
+    <div style="max-width:650px;margin:0 auto;">
+      <h3 class="center">Tot slot (optioneel)</h3>
+      <p>Als je wilt, kun je hieronder je naam invullen en eventuele opmerkingen of feedback achterlaten.</p>
+
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">
+          Naam (optioneel)
+        </label>
+        <input type="text" id="fb-name" class="modern-select"
+               placeholder="Je naam of initialen">
+      </div>
+
+      <div class="field-card" style="margin-top:1rem;">
+        <label style="display:block;margin-bottom:.3rem;font-weight:600;">
+          Opmerkingen of feedback (optioneel, max. 500 tekens)
+        </label>
+        <textarea id="fb-comments" rows="4" maxlength="500"
+          style="width:100%;padding:.55rem .75rem;font-size:1rem;
+                 border:1px solid #cbd0d8;border-radius:8px;"></textarea>
+        <div class="muted" style="text-align:right;margin-top:.25rem;">
+          <span id="fb-count">0</span> / 500
+        </div>
+      </div>
+
+      <div class="center" style="margin-top:1.5rem;">
+        <button id="fb-submit" class="btn-primary">Verzenden en afsluiten</button>
+      </div>
+    </div>
+  `,
+  on_load: () => {
+    const ta = document.getElementById('fb-comments');
+    const counter = document.getElementById('fb-count');
+    ta.addEventListener('input', () => {
+      counter.textContent = ta.value.length.toString();
+    });
+
+    document.getElementById('fb-submit').addEventListener('click', () => {
+      const payload = {
+        name: document.getElementById('fb-name').value.trim(),
+        comments: ta.value.trim()
+      };
+      jsPsych.finishTrial({ kind: 'feedback', response: payload });
+    });
+  }
+});
+
+
 
 /* ---------------- RUN ---------------- */
 jsPsych.run(timeline);
