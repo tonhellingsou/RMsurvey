@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Onderzoek datavisualisatie</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>Onderzoek datavisualisatie 1.0</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
   <script src="lib/jspsych/jspsych.js"></script>
@@ -22,8 +22,31 @@
     html, body {
       margin: 0;
       padding: 0;
-      /*overflow-x: hidden;*/
       max-width: 100%;
+    }
+
+    /* jsPsych content netjes binnen het scherm houden */
+    .jspsych-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 1rem;     /* wat binnenruimte aan de zijkanten */
+      box-sizing: border-box;
+    }
+    
+    /* algemene container die je op meerdere schermen kunt gebruiken */
+    .page-container {
+      max-width: 720px;
+      margin: 1rem auto;   /* boven/onder 1rem, links/rechts auto */
+      padding: 0 1rem;     /* geen cm, maar rem → schaalt met scherm */
+      box-sizing: border-box;
+    }
+    
+    /* iets kleinere titel op kleine schermen */
+    @media (max-width: 480px) {
+      h1 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+      }
     }
 
     /* Card-style radios */
@@ -243,8 +266,8 @@ timeline.push({
   choices: "NO_KEYS",
   stimulus: `
     <div class="intro-container">
-      <div style="text-align:left;max-width:720px;margin:1cm auto;padding:0 1cm;">
-        <h1 style="margin:0 0 .5rem 0; line-height:1.2;">
+    <div class="page-container" style="text-align:left;">
+      <h1 style="margin:0 0 .5rem 0; line-height:1.2;">
           Onderzoek naar interpretatiesnelheid van datavisualisaties
         </h1>
   
