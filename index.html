@@ -64,16 +64,17 @@
     .bi { vertical-align:-0.1em; }
 
 
-    .field-card {
+    .feedback-card {
       background:#fff;
       border:1px solid #d8dbe0;
       border-radius:12px;
-      padding:16px;
+      padding:16px 18px;
       margin-top:1rem;
+      box-shadow:0 1px 2px rgba(0,0,0,.04);
     }
     
-    .field-card input[type="text"],
-    .field-card textarea {
+    .feedback-card input[type="text"],
+    .feedback-card textarea {
       width:100%;
       font-size:1rem;
       padding:10px 12px;
@@ -84,8 +85,8 @@
       border-radius:8px;
     }
     
-    .field-card input[type="text"]:focus,
-    .field-card textarea:focus {
+    .feedback-card input[type="text"]:focus,
+    .feedback-card textarea:focus {
       background:#fff;
       box-shadow:0 0 0 2px rgba(37, 99, 235, 0.25);
     }
@@ -600,14 +601,14 @@ timeline.push({
       <h3 class="center">Tot slot (optioneel)</h3>
       <p>Als je wilt, kun je hieronder je naam invullen en eventuele opmerkingen of feedback achterlaten.</p>
 
-      <div class="field-card">
+      <div class="feedback-card">
         <label style="display:block;margin-bottom:.3rem;font-weight:600;">
           Naam (optioneel)
         </label>
         <input type="text" id="fb-name" placeholder="Je naam of initialen">
       </div>
-      
-      <div class="field-card">
+
+      <div class="feedback-card">
         <label style="display:block;margin-bottom:.3rem;font-weight:600;">
           Opmerkingen of feedback (optioneel, max. 500 tekens)
         </label>
@@ -634,11 +635,10 @@ timeline.push({
         name: document.getElementById('fb-name').value.trim(),
         comments: ta.value.trim()
       };
-      jsPsych.finishTrial({ kind: 'feedback', response: payload });
+      jsPsych.finishTrial({ kind:'feedback', response: payload });
     });
   }
 });
-
 
 
 /* ---------------- RUN ---------------- */
