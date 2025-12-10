@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Onderzoek datavisualisatie 1.0</title>
+  <title>Onderzoek datavisualisatie</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <link rel="stylesheet" href="lib/jspsych/jspsych.css">
@@ -29,7 +29,7 @@
     .jspsych-content {
       max-width: 900px;
       margin: 0 auto;
-      padding: 0 1rem;     /* wat binnenruimte aan de zijkanten */
+      padding: 0 0.5rem 1.5rem;     /* wat binnenruimte aan de zijkanten */
       box-sizing: border-box;
     }
     
@@ -37,8 +37,19 @@
     .page-container {
       max-width: 720px;
       margin: 1rem auto;   /* boven/onder 1rem, links/rechts auto */
-      padding: 0 1rem;     /* geen cm, maar rem → schaalt met scherm */
+      padding: 0 0.5rem;     /* geen cm, maar rem → schaalt met scherm */
       box-sizing: border-box;
+    }
+
+    /* Vanaf tablet/desktop mag het wat ruimer */
+    @media (min-width: 900px) {
+      .jspsych-content {
+        padding: 0 1.5rem 2rem;
+      }
+    
+      .page-container {
+        padding: 0 1.5rem;
+      }
     }
     
     /* iets kleinere titel op kleine schermen */
@@ -46,6 +57,30 @@
       h1 {
         font-size: 1.5rem;
         line-height: 1.2;
+      }
+    }
+
+    /* Desktop: centreer de inhoud verticaal */
+    @media (min-width: 900px) {
+      .jspsych-display-element {
+        min-height: 100vh;      /* volledige schermhoogte */
+        display: flex;
+      }
+    
+      .jspsych-content-wrapper {
+        margin: auto;           /* center horizontaal én verticaal */
+      }
+    }
+    
+    /* Mobiel: normale top-uitlijning, gewoon scrollbaar */
+    @media (max-width: 899px) {
+      .jspsych-display-element {
+        display: block;
+        min-height: auto;
+      }
+    
+      .jspsych-content-wrapper {
+        margin: 0 auto;
       }
     }
 
