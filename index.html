@@ -341,16 +341,31 @@ timeline.push({
         <p>
           Welkom! Dankjewel dat je wilt meehelpen aan ons onderzoek rondom 
           interpretatie van datavisualisaties. 
-          Voorafgaand aan het onderzoek maak je eerst een korte 
-          <b>pretest van 5 vragen</b> over basiskennis van data.
+          Het onderzoek bestaat uit twee delen:
+        </p>
+        <p>
+          Een <b>pretest van 5 vragen</b> over basiskennis van data en grafieken.
+        </p>
+        
+        <p>
+          Een <b>onderzoek met 10 afbeeldingen</b> waarbij je per afbeelding een vraag beantwoordt.
         </p>
   
         <p>
-          Dit helpt ons een beeld te krijgen van je voorkennis over data en 
-          visualisaties. Daarna volgt het echte onderzoek. Het totaal duurt 
-          hopelijk slechts vijf minuten.
+          De pretest gebruiken we om je voorkennis vast te stellen. Het gaat hierbij niet van belang zo veel mogelijk goed te hebben.
         </p>
+      </div>
+    </div>
+  `,
+  on_load: () => {
+    document.getElementById('begin').addEventListener('click', () => jsPsych.finishTrial());
+  }
+});
   
+timeline.push({
+  type: jsPsychHtmlKeyboardResponse,
+  choices: "NO_KEYS",
+  stimulus: `
         <ul style="list-style:none;padding:0;margin:1rem 0;">
           <li style="margin:.6em 0; text-indent:-1.2em; padding-left:1.8em;">
             <i class="bi bi-stopwatch" style="color:#2563eb;margin-right:.5em;"></i>
@@ -366,7 +381,7 @@ timeline.push({
           </li>
           <li style="margin:.6em 0; text-indent:-1.2em; padding-left:1.8em;">
             <i class="bi bi-shield-lock" style="color:#16a34a;margin-right:.5em;"></i>
-            Je resultaten zijn <b>vertrouwelijk</b> en worden alleen voor onderzoek gebruikt.
+            Je resultaten zijn <b>vertrouwelijk</b> en worden alleen gebruikt voor wetenschappelijk onderzoek.
           </li>
         </ul>
   
@@ -374,7 +389,7 @@ timeline.push({
           <button id="begin" class="btn-primary">Beginnen</button>
         </div>
         <p class="muted center" style="margin-top:.6rem">
-          Deelnemer: <b>${PID}</b>
+
         </p>
       </div>
     </div>
@@ -401,7 +416,7 @@ timeline.push({
     <div style="text-align:center;max-width:600px;margin:auto;">
       <h2>De pre-test begint</h2>
       <p>Deze korte pre-test controleert je basiskennis van data en visualisaties.</p>
-      <p>De vragen hebben een wisselende moeilijkheidsgraad en het is geen probleem indien ze niet allemaal juist beantwoord worden.</p>
+      <p>De vragen verschillen in moeilijkheid; het is niet erg als je ze niet allemaal juist beantwoordt.</p>
       <p>Klik op de knop hieronder wanneer je klaar bent om te starten.</p>
       <button id="start-pretest" class="btn-primary" style="margin-top:1rem;">Start pretest</button>
     </div>
@@ -527,7 +542,6 @@ timeline.push({
       <h2>Het hoofdonderzoek begint</h2>
       <p>Hierin beantwoord je vragen over <b>10 datavisualisaties</b>.</p>
       <p>Elke visualisatie verschijnt op het scherm, en je kiest zo snel en nauwkeurig mogelijk het beste antwoord.</p>
-      <p>Er zitten goede en slechte visualisaties tussen, dus soms wordt het moeilijk gemaakt het juiste antwoord te vinden. Dat is intentioneel en er wordt geen beoordeling van je data-interpretatievaardigheden gemaakt.</p>
       <p>Klik hieronder wanneer je klaar bent om met het onderzoek te beginnen.</p>
       <p>Herinnering: Je kunt het onderzoek niet pauzeren.</p>
       <button id="start-survey" class="btn-primary" style="margin-top:1rem;">Start onderzoek</button>
@@ -631,9 +645,10 @@ timeline.push({
     <select name="education" id="education" class="modern-select">
       <option value="">Selecteer…</option>
       <option>Middelbare school</option>
+      <option>MBO</option>
       <option>Bachelor</option>
       <option>Master</option>
-      <option>Promotie / PhD</option>
+      <option>Doctoraat / PhD</option>
       <option>Anders</option>
     </select>
   </div>
@@ -679,6 +694,7 @@ timeline.push({
       <option>Transport en logistiek</option>
       <option>Zakelijke dienstverlening</option>
       <option>Zorg</option>
+      <option>Anders</option>
     </select>
   </div>
   
