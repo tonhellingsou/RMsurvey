@@ -233,16 +233,55 @@ const PID = new URLSearchParams(location.search).get('pid') || (crypto.randomUUI
 
 // Different answer choices per question
 const ANSWER_CHOICES = {
-  1: ["Op de pieken van 10u en 16u na, is de totale koffieverkoop redelijk constant gedurende de dag, maar het aandeel Americano daalt.","In de ochtend worden Cappuccino's het meest verkocht, in de avond zijn Chocolate drinks het populairst."],
-  2: ["In februari 2025 vond een flinke stijging plaats in verkochte Americano's.","Het populairste drankje in oktober was de Chocolate drink."],
-  3: ["De een na meest verkochte drank was Latte.","Chocolate drink zijn twee keer zo vaak verkocht als Cortado's."],
-  4: ["Zes van de top tien warmste jaren vonden plaats in het decennium 2015-2024.","2019 was het eerste jaar waarin de gemiddelde temperatuur boven de 11 graden uitkwam."],
-  5: ["In het huidige decennium is een toename van het aantal uren zonneschijn per dag waargenomen.","In de eerste helft van de vorige eeuw was er ongeveer net zo veel zonneschijn per dag als in 2000-2019."],
-  6: ["Studenten zijn het meest eens met het statement dat de opleidingskwaliteit verhoogd is.","Studenten zijn het meer oneens dan eens met het statement dat ze informatie goed kunnen reproduceren."],
-  7: ["Op het eerste gezicht lijken landen met hogere BBP per capita een hogere democratie-index te hebben.","De meeste landen zitten rond de $1K BBP en democratie-index 4."],
-  8: ["De wereldbevolking blijft groeien en in recente jaren is Afrika relatief het snelst aan het groeien.","De wereldbevolking blijft groeien en in recente jaren is Europa hier een belangrijke drijfveer van."],
-  9: ["In 2023 wordt meer dan de helft van de elektrische auto's in Azië verkocht.","In Europa werden in 2020 minder elektrische auto's verkocht dan in Azië."],
-  10:["Al heeft Azië de grootste elektrische autoverkoop, Zuid-Amerika toonde in 2023 relatief de grootste groei.","Noord-Amerika groeide in 2023 qua verkoop van elektrische auto's relatief minder snel dan Europa."]
+  1: [
+    "De totale koffieverkoop blijft de hele dag ongeveer gelijk, behalve rond 10u en 16u. Het aandeel Americano neemt later op de dag af.",
+    "In de ochtend worden vooral Cappuccino’s verkocht. In de avond worden vooral Chocolate drinks verkocht."
+  ],
+
+  2: [
+    "In februari 2025 steeg het aantal verkochte Americano’s duidelijk.",
+    "In oktober was de Chocolate drink het meest verkochte drankje."
+  ],
+
+  3: [
+    "Latte was de tweede meest verkochte drank.",
+    "Chocolate drinks zijn twee keer zo vaak verkocht als Cortado’s."
+  ],
+
+  4: [
+    "Zes van de tien warmste jaren vielen in de periode 2015–2024.",
+    "In 2019 lag de gemiddelde temperatuur voor het eerst boven de 11 graden."
+  ],
+
+  5: [
+    "In het huidige decennium is het gemiddelde aantal zonuren per dag toegenomen ten opzichte van daarvoor.",
+    "Tussen 1900 en 1950 was het gemiddelde aantal zonuren per dag gelijk aan dat in 2000–2019."
+  ],
+
+  6: [
+    "Studenten zijn het meest positief over de stelling dat de opleidingskwaliteit is verbeterd.",
+    "Studenten zijn vaker oneens dan eens met de stelling dat zij informatie goed kunnen reproduceren."
+  ],
+
+  7: [
+    "Landen met een hoger BBP per capita hebben meestal een hogere democratie-index.",
+    "De meeste landen liggen rond een BBP per capita van $1K (=1000 dollar) en een democratie-index van 4."
+  ],
+
+  8: [
+    "De wereldbevolking groeit nog steeds. Afrika groeit momenteel het snelst.",
+    "De wereldbevolking groeit nog steeds. Europa draagt hier sterk aan bij."
+  ],
+
+  9: [
+    "In 2023 werd meer dan de helft van alle elektrische auto’s in Azië verkocht.",
+    "In 2020 werden in Europa minder elektrische auto’s verkocht dan in Azië."
+  ],
+
+  10: [
+    "Azië had de hoogste totale verkoop van elektrische auto’s. Zuid-Amerika had in 2023 de grootste relatieve groei.",
+    "In 2023 groeide de verkoop van elektrische auto’s in Noord-Amerika minder snel dan in Europa."
+  ]
 };
 
 
@@ -352,7 +391,7 @@ timeline.push({
         </p>
   
         <p>
-          De pretest gebruiken we om je voorkennis vast te stellen. Het gaat hierbij niet van belang zo veel mogelijk goed te hebben.
+          De pretest gebruiken we om je voorkennis vast te stellen. Het is hierbij niet belangrijk om zo veel mogelijk vragen goed te hebben.
         </p>
 
         
